@@ -1,0 +1,49 @@
+{
+  "common": {
+    "search": "Search",
+    "readMore": "Read More",
+    "subscribe": "Subscribe",
+    "email": "Email",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "team": "Team",
+    "clients": "Clients",
+    "blog": "Blog",
+    "contact": "Contact",
+    "about": "About"
+  },
+  "hero": {
+    "title": "Welcome",
+    "subtitle": "Your subtitle here"
+  },
+  "team": {
+    "title": "Our Team",
+    "subtitle": "Meet our experts"
+  },
+  "clients": {
+    "title": "Our Clients",
+    "subtitle": "Trusted by leading companies"
+  },
+  "footer": {
+    "subscribe": "Subscribe",
+    "subscribePlaceholder": "Enter your email",
+    "subscribeSuccess": "Thank you for subscribing!",
+    "subscribeError": "Something went wrong. Please try again.",
+    "duplicateEmail": "This email is already subscribed",
+    "invalidEmail": "Please enter a valid email address"
+  },
+  "search": {
+    "title": "Search Results",
+    "noResults": "No results found",
+    "team": "Team",
+    "services": "Services"
+  },
+  "service": {
+    "back": "Back to Services"
+  }
+}
