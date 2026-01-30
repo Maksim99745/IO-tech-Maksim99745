@@ -4,101 +4,173 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@/store/hooks";
 import { strapiApi } from "@/lib/api/strapi";
-import { HeroContent } from "@/types";
-import Link from "next/link";
+import { TeamMember } from "@/types";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function HeroSection() {
   const { t, i18n } = useTranslation();
   const { currentLanguage } = useAppSelector((state) => state.language);
-  const [heroContent, setHeroContent] = useState<HeroContent | null>(null);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchHeroContent = async () => {
+    const fetchTeamMembers = async () => {
       try {
         setLoading(true);
+        setError(null);
         const locale = currentLanguage || i18n.language || "en";
-        const content = await strapiApi.getHeroContent(locale);
-        if (content && content.length > 0) {
-          setHeroContent(content[0]);
+        console.log("Fetching team members for locale:", locale);
+        const members = await strapiApi.getTeamMembers(locale);
+        console.log("Team members received:", members);
+        setTeamMembers(members || []);
+        if (!members || members.length === 0) {
+          console.warn("No team members found in Strapi for locale:", locale);
         }
-      } catch (error) {
-        console.error("Failed to fetch hero content:", error);
+      } catch (error: any) {
+        console.error("Failed to fetch team members:", error);
+        console.error("Error details:", error.response?.data || error.message);
+        setError(error.message || "Failed to load team members");
+        setTeamMembers([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchHeroContent();
+    fetchTeamMembers();
   }, [currentLanguage, i18n.language]);
+
+  useEffect(() => {
+    if (teamMembers.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % teamMembers.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [teamMembers.length]);
 
   if (loading) {
     return (
-      <section className="relative min-h-[600px] bg-brown-dark flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <section className="relative flex-1 bg-transparent flex items-center justify-center w-full">
+        <div className="relative z-20 text-white text-xl">Loading...</div>
       </section>
     );
   }
 
-  if (!heroContent) {
-    return null;
-  }
+  const currentMember = teamMembers.length > 0 ? teamMembers[currentIndex] : null;
+
+  const prevMember = () => {
+    setCurrentIndex((prev) => (prev - 1 + teamMembers.length) % teamMembers.length);
+  };
+
+  const nextMember = () => {
+    setCurrentIndex((prev) => (prev + 1) % teamMembers.length);
+  };
 
   return (
-    <section className="relative min-h-[600px] bg-brown-dark overflow-hidden">
-      {heroContent.media.url && (
-        <div className="absolute inset-0 z-0">
-          {heroContent.media.type === "video" ? (
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover opacity-50"
-            >
-              <source src={heroContent.media.url} type="video/mp4" />
-            </video>
-          ) : (
-            <Image
-              src={heroContent.media.url}
-              alt={heroContent.media.alt || heroContent.title}
-              fill
-              className="object-cover opacity-50"
-              priority
-            />
-          )}
+    <section className="relative flex-1 bg-transparent overflow-hidden w-full">
+      {currentMember ? (
+        <div className="relative z-20 h-full flex items-start">
+          <div className="container mx-auto px-6 md:px-24 w-full">
+            <div className="flex items-start gap-8">
+              <div className="flex items-start gap-[109px]">
+                <div className="flex flex-col items-center pt-[294px]">
+                  <button
+                    onClick={nextMember}
+                    className="w-[12px] h-[35px] flex items-center justify-center text-white text-[30px] leading-[100%] text-center mb-[88px]"
+                    aria-label="Next team member"
+                    style={{ 
+                      fontFamily: 'FontAwesome',
+                      fontWeight: 400,
+                      letterSpacing: '0px'
+                    }}
+                  >
+                    <Image
+                      src="/assets/fa-angle-left.svg"
+                      alt="Next"
+                      width={10}
+                      height={17}
+                      className="w-full h-full"
+                    />
+                  </button>
+
+                  {teamMembers.length > 1 && (
+                    <div className="flex flex-col items-center gap-2">
+                      {teamMembers.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentIndex(index)}
+                          className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                            index === currentIndex
+                              ? "bg-white"
+                              : "bg-transparent border border-white hover:bg-white/20"
+                          }`}
+                          aria-label={`Go to slide ${index + 1}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col pt-[298px]">
+                  <h1 
+                    className="text-[40px] leading-[28px] text-white mb-[35px]"
+                  >
+                    {currentMember.name}
+                  </h1>
+                  
+                  <p 
+                    className="text-[18px] leading-[28px] font-medium text-white mb-[76px] max-w-[700px]"
+                  >
+                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s
+                  </p>
+
+                  <Link
+                    href="/#team"
+                    className="w-[161px] h-[60px] bg-white text-brown-dark rounded-[12px] flex items-center justify-center hover:bg-gray-100 transition-colors font-medium"
+                  >
+                    {t("common.readMore")}
+                  </Link>
+                </div>
+              </div>
+
+              <div className="relative w-[374px] h-[374px] bg-[#643F2E] rounded-lg overflow-hidden ml-auto" style={{ marginTop: '235px' }}>
+                {currentMember.image ? (
+                  <Image
+                    src={currentMember.image.url}
+                    alt={currentMember.image.alt || currentMember.name}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                ) : (
+                  <Image
+                    src="/assets/Worker picture.png"
+                    alt="Team members"
+                    fill
+                    className="object-cover"
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="relative z-20 h-full flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-white text-xl mb-2">No team members available</div>
+            {error && (
+              <div className="text-brown-light text-sm">Error: {error}</div>
+            )}
+            <div className="text-brown-light text-sm mt-2">
+              Please add team members in Strapi CMS
+            </div>
+          </div>
         </div>
       )}
-
-      <div className="relative z-10 container mx-auto px-6 md:px-24 py-20 md:py-32">
-        <div className="max-w-2xl">
-          {heroContent.subtitle && (
-            <p className="text-brown-light text-lg md:text-xl mb-4 font-medium">
-              {heroContent.subtitle}
-            </p>
-          )}
-          
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-brown-dark mb-6 leading-tight">
-            {heroContent.title}
-          </h1>
-
-          {heroContent.description && (
-            <p className="text-brown-dark text-base md:text-lg mb-8 leading-relaxed">
-              {heroContent.description}
-            </p>
-          )}
-
-          {heroContent.ctaText && heroContent.ctaLink && (
-            <Link
-              href={heroContent.ctaLink}
-              className="inline-block text-brown-dark underline font-medium text-lg hover:text-brown-light transition-colors"
-            >
-              {heroContent.ctaText}
-            </Link>
-          )}
-        </div>
-      </div>
     </section>
   );
 }

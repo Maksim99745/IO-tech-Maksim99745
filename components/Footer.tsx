@@ -13,16 +13,16 @@ import {
 import { strapiApi } from "@/lib/api/strapi";
 import Link from "next/link";
 
-const emailSchema = Yup.object().shape({
-  email: Yup.string()
-    .email("Invalid email")
-    .required("Email is required"),
-});
-
 export default function Footer() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { subscription } = useAppSelector((state) => state.forms);
+
+  const emailSchema = Yup.object().shape({
+    email: Yup.string()
+      .email(t("footer.invalidEmail"))
+      .required(t("footer.invalidEmail")),
+  });
 
   const handleSubmit = async (values: { email: string }, { resetForm }: any) => {
     try {
@@ -51,7 +51,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-brown-dark text-white">
+    <footer className="bg-brown-dark text-white mt-auto w-full relative z-10">
       <div className="container mx-auto px-6 md:px-24 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 pb-8 border-b border-gray-600">
           <div className="md:col-span-2 flex flex-col md:flex-row md:items-center md:justify-end gap-4">
@@ -60,28 +60,65 @@ export default function Footer() {
               validationSchema={emailSchema}
               onSubmit={handleSubmit}
             >
-              {({ isSubmitting }) => (
-                <Form className="flex gap-2 flex-1 md:flex-initial md:max-w-md">
-                  <Field
-                    type="email"
-                    name="email"
-                    placeholder={t("footer.subscribePlaceholder")}
-                    className="flex-1 bg-white text-brown-dark px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-brown-light"
-                    disabled={subscription.isLoading}
-                  />
-                  <button
-                    type="submit"
-                    disabled={subscription.isLoading || isSubmitting}
-                    className="bg-brown-dark text-white px-6 py-2 rounded-lg hover:bg-brown-light transition-colors font-medium whitespace-nowrap"
+              {({ isSubmitting, errors, touched }) => (
+                <div className="flex flex-col gap-2 flex-1 md:flex-initial">
+                  <div 
+                    className="relative bg-white rounded-[6px]"
+                    style={{
+                      width: '223px',
+                      height: '41px'
+                    }}
                   >
-                    {subscription.isLoading ? t("common.loading") : t("footer.subscribe")}
-                  </button>
-                </Form>
+                    <Field
+                      type="email"
+                      name="email"
+                      placeholder={t("footer.subscribePlaceholder")}
+                      className={`w-full h-full bg-transparent text-brown-dark py-2 rounded-[6px] focus:outline-none ${
+                        errors.email && touched.email
+                          ? "border border-red-500"
+                          : "border-0"
+                      }`}
+                      style={{
+                        paddingLeft: '12px',
+                        paddingRight: '111px',
+                        fontWeight: 400,
+                        fontStyle: 'normal',
+                        fontSize: '16px',
+                        lineHeight: '20px',
+                        letterSpacing: '0%'
+                      }}
+                      disabled={subscription.isLoading}
+                    />
+                    <button
+                      type="submit"
+                      disabled={subscription.isLoading || isSubmitting}
+                      className="absolute bg-brown-dark text-white rounded-[8px] hover:bg-brown-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed rtl:left-[5px] rtl:right-auto flex items-center justify-center"
+                      style={{
+                        width: '101px',
+                        height: '30px',
+                        top: '5px',
+                        right: '5px',
+                        fontWeight: 500,
+                        fontSize: '12px',
+                        lineHeight: '17.33px',
+                        letterSpacing: '0px',
+                        textAlign: 'center'
+                      }}
+                    >
+                      {subscription.isLoading ? t("common.loading") : t("footer.subscribe")}
+                    </button>
+                  </div>
+                  {errors.email && touched.email && (
+                    <div className="text-red-400 text-xs mt-1">
+                      {errors.email}
+                    </div>
+                  )}
+                </div>
               )}
             </Formik>
 
             <div className="flex items-center gap-6">
-              <span className="text-white font-medium">{t("nav.contact")}</span>
+              <span className="text-white font-medium">{t("nav.contactUs")}</span>
               <div className="flex gap-4">
                 <a
                   href="https://twitter.com"
@@ -136,7 +173,7 @@ export default function Footer() {
               Social Responsibility
             </Link>
             <Link href="/services" className="hover:text-brown-light transition-colors">
-              {t("nav.services")}
+              {t("nav.ourServices")}
             </Link>
           </div>
 

@@ -16,6 +16,7 @@ export default function HeaderNavigation() {
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [services, setServices] = useState<any[]>([]);
+  const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -30,6 +31,14 @@ export default function HeaderNavigation() {
     fetchServices();
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (closeTimeout) {
+        clearTimeout(closeTimeout);
+      }
+    };
+  }, [closeTimeout]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
@@ -43,91 +52,172 @@ export default function HeaderNavigation() {
   };
 
   return (
-    <header className="bg-brown-dark text-white sticky top-0 z-50">
+    <header className="bg-transparent text-white h-[91px] flex items-center">
       <nav className="container mx-auto px-6 py-4 md:px-24">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-8 rtl:space-x-reverse">
-            <Link href="/" className="text-xl md:text-2xl font-bold font-sans">
-              IO Tech
+          <div className="flex-shrink-0">
+          </div>
+
+          <div className="hidden md:flex items-center justify-center flex-1 space-x-6 rtl:space-x-reverse">
+            <Link
+              href="/"
+              className="hover:text-brown-light transition-colors"
+            >
+              {t("nav.home")}
             </Link>
 
-            <div className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
-              <Link
-                href="/"
-                className="hover:text-brown-light transition-colors"
-              >
-                {t("nav.home")}
-              </Link>
+            <Link
+              href="/about"
+              className="hover:text-brown-light transition-colors"
+            >
+              {t("nav.aboutUs")}
+            </Link>
 
-              <div
-                className="relative"
-                onMouseEnter={() => setIsServicesOpen(true)}
-                onMouseLeave={() => setIsServicesOpen(false)}
-              >
-                <button className="hover:text-brown-light transition-colors flex items-center">
-                  {t("nav.services")}
-                  <svg
-                    className="w-4 h-4 ml-1 rtl:ml-0 rtl:mr-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </button>
+            <div
+              className="relative"
+              onMouseEnter={() => {
+                if (closeTimeout) {
+                  clearTimeout(closeTimeout);
+                  setCloseTimeout(null);
+                }
+                setIsServicesOpen(true);
+              }}
+              onMouseLeave={() => {
+                const timeout = setTimeout(() => {
+                  setIsServicesOpen(false);
+                }, 200);
+                setCloseTimeout(timeout);
+              }}
+            >
+              <button className="hover:text-brown-light transition-colors flex items-center">
+                {t("nav.services")}
+                <svg
+                  className="w-4 h-4 ml-1 rtl:ml-0 rtl:mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
 
-                {isServicesOpen && (
-                  <div className="absolute top-full left-0 mt-2 bg-brown-dark border border-brown-light rounded-lg shadow-lg w-[800px] p-6">
-                    {services.length > 0 ? (
-                      <div className="grid grid-cols-3 gap-6">
-                        {services.map((service, index) => (
-                          <Link
-                            key={service.id}
-                            href={`/services/${service.slug}`}
-                            className="block px-4 py-2 hover:bg-brown-light transition-colors text-base"
-                          >
-                            {service.title}
-                          </Link>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="px-4 py-2 text-gray-400">
-                        {t("common.loading")}
-                      </div>
-                    )}
-                    <div className="mt-4 pt-4 border-t border-brown-light">
-                      <Link
-                        href="/services"
-                        className="inline-block bg-white text-brown-dark px-6 py-2 rounded-lg hover:bg-gray-100 transition-colors font-medium"
-                      >
-                        {t("common.readMore")}
+              {isServicesOpen && (
+                <div 
+                  className="fixed left-[40px] right-[40px] top-[91px] bg-brown-dark rounded-xl shadow-2xl p-8 z-50"
+                  onMouseEnter={() => {
+                    if (closeTimeout) {
+                      clearTimeout(closeTimeout);
+                      setCloseTimeout(null);
+                    }
+                    setIsServicesOpen(true);
+                  }}
+                  onMouseLeave={() => {
+                    const timeout = setTimeout(() => {
+                      setIsServicesOpen(false);
+                    }, 200);
+                    setCloseTimeout(timeout);
+                  }}
+                >
+                  <div className="grid grid-cols-4 gap-8 mb-6">
+                    <div className="space-y-2">
+                      <Link href="/services/legal-consultation" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Legal Consultation Services
+                      </Link>
+                      <Link href="/services/foreign-investment" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Foreign Investment Services
+                      </Link>
+                      <Link href="/services/contracts" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Contracts
+                      </Link>
+                      <Link href="/services/notarization" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Notarization
+                      </Link>
+                      <Link href="/services/insurance" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Insurance
+                      </Link>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Link href="/services/defense" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        ...and Defense in All Cases
+                      </Link>
+                      <Link href="/services/banks-financial" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Banks and Financial Institutions
+                      </Link>
+                      <Link href="/services/corporate-governance" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Corporate Governance Services
+                      </Link>
+                      <Link href="/services/companies-liquidation" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Companies Liquidation
+                      </Link>
+                      <Link href="/services/internal-regulations" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Internal Regulations for Companies
+                      </Link>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Link href="/services/companies-institutions" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Services for Companies and Institutions
+                      </Link>
+                      <Link href="/services/arbitration" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Arbitration
+                      </Link>
+                      <Link href="/services/intellectual-property" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Intellectual Property
+                      </Link>
+                      <Link href="/services/corporate-restructuring" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Corporate Restructuring and Reorganization
+                      </Link>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Link href="/services/establishing-companies" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Establishing National and Foreign Companies
+                      </Link>
+                      <Link href="/services/commercial-agencies" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Commercial Agencies
+                      </Link>
+                      <Link href="/services/vision-2030" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Supporting Vision 2030
+                      </Link>
+                      <Link href="/services/estates" className="block text-white hover:text-brown-light transition-colors text-base py-2">
+                        Estates
                       </Link>
                     </div>
                   </div>
-                )}
-              </div>
-
-              <Link
-                href="#team"
-                className="hover:text-brown-light transition-colors"
-              >
-                {t("nav.team")}
-              </Link>
-              <Link
-                href="#clients"
-                className="hover:text-brown-light transition-colors"
-              >
-                {t("nav.clients")}
-              </Link>
+                </div>
+              )}
             </div>
+
+            <Link
+              href="/blog"
+              className="hover:text-brown-light transition-colors"
+            >
+              {t("nav.blog")}
+            </Link>
+
+            <Link
+              href="#team"
+              className="hover:text-brown-light transition-colors"
+            >
+              {t("nav.ourTeam")}
+            </Link>
+
+            <Link
+              href="/contact"
+              className="hover:text-brown-light transition-colors"
+            >
+              {t("nav.contactUs")}
+            </Link>
           </div>
 
-          <div className="flex items-center space-x-4 rtl:space-x-reverse">
+          {/* Элементы справа: поиск, язык, кнопка */}
+          <div className="flex items-center space-x-4 rtl:space-x-reverse flex-shrink-0">
             <div className="relative">
               {isSearchOpen ? (
                 <form onSubmit={handleSearch} className="flex items-center">
@@ -174,7 +264,7 @@ export default function HeaderNavigation() {
 
             <Link
               href="/appointment"
-              className="hidden md:block bg-white text-brown-dark px-6 py-2 rounded-lg border border-white hover:bg-gray-100 transition-colors font-medium"
+              className="hidden md:block bg-transparent text-white px-6 py-2 rounded-lg border border-white hover:bg-white/10 transition-colors font-medium"
             >
               Book Appointment
             </Link>
@@ -219,6 +309,13 @@ export default function HeaderNavigation() {
             >
               {t("nav.home")}
             </Link>
+            <Link
+              href="/about"
+              className="block py-2 hover:text-brown-light transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {t("nav.aboutUs")}
+            </Link>
             <div className="py-2">
               <button
                 onClick={() => setIsServicesOpen(!isServicesOpen)}
@@ -257,18 +354,25 @@ export default function HeaderNavigation() {
               )}
             </div>
             <Link
+              href="/blog"
+              className="block py-2 hover:text-brown-light transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {t("nav.blog")}
+            </Link>
+            <Link
               href="#team"
               className="block py-2 hover:text-brown-light transition-colors"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              {t("nav.team")}
+              {t("nav.ourTeam")}
             </Link>
             <Link
-              href="#clients"
+              href="/contact"
               className="block py-2 hover:text-brown-light transition-colors"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              {t("nav.clients")}
+              {t("nav.contactUs")}
             </Link>
           </div>
         )}

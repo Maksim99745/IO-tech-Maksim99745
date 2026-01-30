@@ -10,12 +10,13 @@
   },
   "nav": {
     "home": "Home",
+    "about": "About",
+    "aboutUs": "About us",
     "services": "Services",
-    "team": "Team",
-    "clients": "Clients",
+    "ourServices": "Our Services",
     "blog": "Blog",
-    "contact": "Contact",
-    "about": "About"
+    "ourTeam": "Our Team",
+    "contactUs": "Contact us"
   },
   "hero": {
     "title": "Welcome",
@@ -26,12 +27,13 @@
     "subtitle": "Meet our experts"
   },
   "clients": {
-    "title": "Our Clients",
-    "subtitle": "Trusted by leading companies"
+    "title": "What our clients are saying",
+    "subtitle": "Our clients range from individual investors, to local, international as well as fortune 500 companies.",
+    "reviews": "Reviews"
   },
   "footer": {
     "subscribe": "Subscribe",
-    "subscribePlaceholder": "Enter your email",
+    "subscribePlaceholder": "Email",
     "subscribeSuccess": "Thank you for subscribing!",
     "subscribeError": "Something went wrong. Please try again.",
     "duplicateEmail": "This email is already subscribed",

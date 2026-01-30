@@ -51,34 +51,63 @@ const transformService = (item: any): Service => {
   };
 };
 
-const transformTeamMember = (item: any): TeamMember => ({
-  id: item.id,
-  name: item.attributes.name,
-  role: item.attributes.role,
-  image: item.attributes.image?.data
-    ? {
-        url: `${API_BASE_URL}${item.attributes.image.data.attributes.url}`,
-        alt: item.attributes.image.data.attributes.alternativeText || "",
-      }
-    : undefined,
-  whatsapp: item.attributes.whatsapp || undefined,
-  phone: item.attributes.phone || undefined,
-  email: item.attributes.email || undefined,
-});
+const transformTeamMember = (item: any): TeamMember => {
+  if (!item) {
+    console.error("Item is null or undefined");
+    throw new Error("Item is null or undefined");
+  }
+  
+  // Strapi v5 может использовать прямой формат или attributes
+  const data = item.attributes || item;
+  
+  if (!data) {
+    console.error("Invalid team member data:", item);
+    throw new Error("Invalid team member data structure");
+  }
+  
+  if (!data.name && !data.role) {
+    console.error("Team member missing name and role:", data);
+  }
+  
+  return {
+    id: item.id || item.documentId || String(Math.random()),
+    name: data.name || "Unknown",
+    role: data.role || "",
+    image: data.image?.data || data.image
+      ? {
+          url: data.image?.data?.attributes?.url 
+            ? `${API_BASE_URL}${data.image.data.attributes.url}`
+            : data.image?.url || data.image?.attributes?.url || "",
+          alt: data.image?.data?.attributes?.alternativeText || data.image?.alternativeText || "",
+        }
+      : undefined,
+    whatsapp: data.whatsapp || undefined,
+    phone: data.phone || undefined,
+    email: data.email || undefined,
+  };
+};
 
-const transformClient = (item: any): Client => ({
-  id: item.id,
-  name: item.attributes.name,
-  position: item.attributes.position || undefined,
-  company: item.attributes.company || undefined,
-  image: item.attributes.image?.data
-    ? {
-        url: `${API_BASE_URL}${item.attributes.image.data.attributes.url}`,
-        alt: item.attributes.image.data.attributes.alternativeText || "",
-      }
-    : undefined,
-  testimonial: item.attributes.testimonial || undefined,
-});
+const transformClient = (item: any): Client => {
+  const data = item.attributes || item;
+  return {
+    id: item.id || item.documentId || String(Math.random()),
+    name: data.name || "",
+    position: data.position || undefined,
+    company: data.company || undefined,
+    image: data.image?.data
+      ? {
+          url: `${API_BASE_URL}${data.image.data.attributes.url}`,
+          alt: data.image.data.attributes.alternativeText || "",
+        }
+      : data.image?.attributes
+      ? {
+          url: `${API_BASE_URL}${data.image.attributes.url}`,
+          alt: data.image.attributes.alternativeText || "",
+        }
+      : undefined,
+    testimonial: data.testimonial || undefined,
+  };
+};
 
 const transformHeroContent = (item: any): HeroContent => ({
   id: item.id,
@@ -178,8 +207,27 @@ export const strapiApi = {
       }
       
       const response = await api.get<any>("/team-members", { params });
+      console.log("Strapi team members response:", response.data);
+      
       const strapiData = response.data?.data || response.data || [];
-      return Array.isArray(strapiData) ? strapiData.map(transformTeamMember) : [];
+      console.log("Strapi data array:", strapiData);
+      
+      if (!Array.isArray(strapiData)) {
+        console.error("Expected array but got:", typeof strapiData, strapiData);
+        return [];
+      }
+      
+      return strapiData
+        .filter((item: any) => item && (item.attributes || item))
+        .map((item: any) => {
+          try {
+            return transformTeamMember(item);
+          } catch (error) {
+            console.error("Error transforming team member:", item, error);
+            return null;
+          }
+        })
+        .filter((item: any) => item !== null) as TeamMember[];
     } catch (error: any) {
       console.error("Error fetching team members:", error);
       console.error("Error response:", error.response?.data);
@@ -221,7 +269,21 @@ export const strapiApi = {
       
       const response = await api.get<any>("/clients", { params });
       const strapiData = response.data?.data || response.data || [];
-      return Array.isArray(strapiData) ? strapiData.map(transformClient) : [];
+      
+      if (!Array.isArray(strapiData)) {
+        return [];
+      }
+      
+      const transformed = strapiData.map((item: any) => {
+        try {
+          return transformClient(item);
+        } catch (error) {
+          console.error("Error transforming client:", item, error);
+          return null;
+        }
+      }).filter((item: any) => item !== null);
+      
+      return transformed;
     } catch (error: any) {
       console.error("Error fetching clients:", error);
       console.error("Error response:", error.response?.data);
