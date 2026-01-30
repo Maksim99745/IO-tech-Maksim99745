@@ -131,10 +131,10 @@ export default function OurTeam() {
                 </div>
 
                 <div className="text-center w-full">
-                  <h3 className="text-[22px] font-medium text-[#4B2615] mb-2 leading-[32px] text-center h-[64px] flex items-center justify-center px-2 overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                  <h3 className="text-[22px] font-medium text-[#4B2615] mb-2 leading-[32px] text-center">
                     {member.name}
                   </h3>
-                  <p className="text-[14px] font-bold uppercase leading-[26px] text-center mb-5 tracking-[2px] text-[rgba(21.06,20.34,56.79,0.40)] min-h-[52px] flex items-center justify-center">
+                  <p className="text-[14px] font-bold uppercase leading-[26px] text-center mb-5 tracking-[2px] text-[rgba(21.06,20.34,56.79,0.40)]">
                     {(() => {
                       const roleKey = `team.roles.${member.role}`;
                       const translated = t(roleKey);
@@ -142,57 +142,61 @@ export default function OurTeam() {
                     })()}
                   </p>
 
-                  {(member.whatsapp || member.phone || member.email) && (
-                    <div className="flex items-center justify-center mx-auto h-6 gap-3">
-                      {member.whatsapp && (
-                        <a
-                          href={`https://wa.me/${member.whatsapp.replace(/\D/g, "")}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center w-[22.5px] h-4"
-                          aria-label="WhatsApp"
-                        >
-                          <Image
-                            src="/assets/whatsapp-icon.png"
-                            alt="WhatsApp"
-                            width={23}
-                            height={23}
-                            className="w-full h-full object-contain"
-                          />
-                        </a>
-                      )}
-                      {member.phone && (
-                        <a
-                          href={`tel:${member.phone}`}
-                          className="flex items-center justify-center w-6 h-[18px]"
-                          aria-label="Phone"
-                        >
-                          <Image
-                            src="/assets/phone-icon.png"
-                            alt="Phone"
-                            width={23}
-                            height={23}
-                            className="w-full h-full object-contain"
-                          />
-                        </a>
-                      )}
-                      {member.email && (
-                        <a
-                          href={`mailto:${member.email}`}
-                          className="flex items-center justify-center w-[22.5px] h-4"
-                          aria-label="Email"
-                        >
-                          <Image
-                            src="/assets/email-icon.png"
-                            alt="Email"
-                            width={25}
-                            height={18}
-                            className="w-full h-full object-contain"
-                          />
-                        </a>
-                      )}
-                    </div>
-                  )}
+                  <div className="flex items-center justify-center mx-auto h-6 gap-3">
+                    {member.whatsapp ? (
+                      <a
+                        href={`https://wa.me/${member.whatsapp.replace(/\D/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-[22px] h-[22px]"
+                        aria-label="WhatsApp"
+                      >
+                        <Image
+                          src="/assets/Group 1000003317 (1).png"
+                          alt="WhatsApp"
+                          width={22}
+                          height={22}
+                          className="w-full h-full object-contain"
+                        />
+                      </a>
+                    ) : (
+                      <div className="w-[22px] h-[22px]" />
+                    )}
+                    {member.phone ? (
+                      <a
+                        href={`tel:${member.phone}`}
+                        className="flex items-center justify-center w-[27px] h-[27px]"
+                        aria-label="Phone"
+                      >
+                        <Image
+                          src="/assets/phone-icon.png"
+                          alt="Phone"
+                          width={27}
+                          height={27}
+                          className="w-full h-full object-contain"
+                        />
+                      </a>
+                    ) : (
+                      <div className="w-[27px] h-[27px]" />
+                    )}
+                    {member.email ? (
+                      <a
+                        href={`mailto:${member.email}`}
+                        className="flex items-center justify-center w-[22.5px] h-4"
+                        aria-label="Email"
+                      >
+                        <Image
+                          src="/assets/email-icon.png"
+                          alt="Email"
+                          width={25}
+                          height={18}
+                          className="w-full h-full object-contain"
+                        />
+                      </a>
+                    ) : (
+                      <div className="w-[22.5px] h-4" />
+                    )}
+                  </div>
                 </div>
               </div>
             );
