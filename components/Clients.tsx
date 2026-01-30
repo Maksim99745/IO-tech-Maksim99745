@@ -32,15 +32,7 @@ export default function Clients() {
     fetchClients();
   }, [currentLanguage, i18n.language]);
 
-  if (loading) {
-    return (
-      <section id="clients" className="bg-[#4B2615] w-full relative z-10 flex justify-center items-center" style={{ height: '853px' }}>
-        <div className="text-center text-white">Loading clients...</div>
-      </section>
-    );
-  }
-
-  if (clients.length === 0) {
+  if (clients.length === 0 && !loading) {
     return null;
   }
 
@@ -55,49 +47,25 @@ export default function Clients() {
   };
 
   return (
-    <section id="clients" className="bg-[#4B2615] w-full relative z-10 flex justify-center items-center" style={{ height: '853px' }}>
-      <div className="w-full max-w-[1401.10px] h-full relative" style={{ position: 'relative' }}>
-        {/* Заголовок */}
-        <div 
-          className="absolute text-white"
-          style={{
-            left: '122px',
-            top: '100px',
-            fontWeight: '700',
-            fontSize: '40px',
-            lineHeight: '52px',
-            wordWrap: 'break-word'
-          }}
-        >
+    <section id="clients" className="bg-[#4B2615] w-full relative z-10 flex justify-center items-center h-[853px] min-h-[853px]">
+      <div className="w-full max-w-[1401.10px] h-full relative">
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-white">Loading clients...</div>
+          </div>
+        )}
+        
+        {!loading && clients.length > 0 && (
+          <>
+        <div className="absolute text-white left-[122px] top-[100px] font-bold text-[40px] leading-[52px] break-words">
           {t("clients.title")}
         </div>
 
-        {/* Описание */}
-        <div 
-          className="absolute text-white"
-          style={{
-            width: '579px',
-            left: '121.55px',
-            top: '178.27px',
-            opacity: 0.70,
-            fontWeight: '400',
-            fontSize: '18px',
-            wordWrap: 'break-word'
-          }}
-        >
+        <div className="absolute text-white w-[579px] left-[121.55px] top-[178.27px] opacity-70 font-normal text-lg break-words">
           {t("clients.subtitle")}
         </div>
 
-        {/* Фото клиента */}
-        <div 
-          className="absolute bg-[#643F2E] overflow-hidden"
-          style={{
-            width: '374px',
-            height: '374px',
-            left: '122px',
-            top: '312px'
-          }}
-        >
+        <div className="absolute bg-[#643F2E] overflow-hidden w-[374px] h-[374px] left-[122px] top-[312px]">
           <Image
             src={currentClient.image?.url || "/assets/Worker picture.png"}
             alt={currentClient.image?.alt || currentClient.name || "Client"}
@@ -106,78 +74,28 @@ export default function Clients() {
           />
         </div>
 
-        {/* Отзыв */}
         {currentClient.testimonial && (
-          <div 
-            className="absolute text-white"
-            style={{
-              width: '728px',
-              left: '545px',
-              top: '312px',
-              opacity: 0.60,
-              fontWeight: '400',
-              fontSize: '24px',
-              lineHeight: '40px',
-              wordWrap: 'break-word'
-            }}
-          >
+          <div className="absolute text-white w-[728px] left-[545px] top-[312px] opacity-60 font-normal text-2xl leading-10 break-words">
             &quot;{currentClient.testimonial}&quot;
           </div>
         )}
 
-        {/* Имя клиента */}
-        <div 
-          className="absolute text-white"
-          style={{
-            width: '202px',
-            height: '31px',
-            left: '545px',
-            top: '613px',
-            fontWeight: '600',
-            fontSize: '24px',
-            lineHeight: '45px',
-            wordWrap: 'break-word'
-          }}
-        >
+        <div className="absolute text-white left-[545px] top-[613px] font-semibold text-2xl leading-[45px] break-words">
           {currentClient.name}
         </div>
 
-        {/* Должность/Компания */}
-        <div 
-          className="absolute text-white"
-          style={{
-            left: '545px',
-            top: '664px',
-            fontWeight: '400',
-            fontSize: '16px',
-            wordWrap: 'break-word'
-          }}
-        >
+        <div className="absolute text-white left-[545px] top-[664px] font-normal text-base break-words">
           {currentClient.position && currentClient.company 
             ? `${currentClient.position} / ${currentClient.company}`
             : currentClient.position || currentClient.company || ""
           }
         </div>
 
-        {/* Навигационные кнопки и счетчик */}
         {clients.length > 1 && (
           <>
-            {/* Кнопка назад (прозрачная) */}
             <button
               onClick={prevClient}
-              className="absolute"
-              style={{
-                width: '67px',
-                height: '67px',
-                left: '1149px',
-                top: '686px',
-                background: 'rgba(255, 255, 255, 0.10)',
-                borderRadius: '9999px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer'
-              }}
+              className="absolute w-[67px] h-[67px] left-[1149px] top-[686px] bg-white/10 rounded-full flex items-center justify-center cursor-pointer"
               aria-label="Previous client"
             >
               <svg width="7" height="14" viewBox="0 0 7 14" fill="none">
@@ -185,45 +103,24 @@ export default function Clients() {
               </svg>
             </button>
 
-            {/* Кнопка вперед (белая) */}
             <button
               onClick={nextClient}
-              className="absolute"
-              style={{
-                width: '67px',
-                height: '67px',
-                left: '1251px',
-                top: '686px',
-                background: 'white',
-                borderRadius: '9999px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer'
-              }}
+              className="absolute w-[67px] h-[67px] left-[1251px] top-[686px] bg-white rounded-full flex items-center justify-center cursor-pointer"
               aria-label="Next client"
             >
-              <div style={{ width: '24px', height: '24px', overflow: 'hidden' }}>
-                <svg width="7" height="14" viewBox="0 0 7 14" fill="none" style={{ marginLeft: '12px', marginTop: '5px' }}>
+              <div className="w-6 h-6 overflow-hidden">
+                <svg width="7" height="14" viewBox="0 0 7 14" fill="none" className="ml-3 mt-[5px]">
                   <path d="M1 1L6 7L1 13" stroke="#4B2615" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
             </button>
 
-            {/* Счетчик */}
-            <div 
-              className="absolute text-[#4B2615]"
-              style={{
-                left: '1176px',
-                top: '639px',
-                fontWeight: '500',
-                fontSize: '16px',
-                wordWrap: 'break-word'
-              }}
-            >
+            <div className="absolute text-[#4B2615] left-[1176px] top-[639px] font-medium text-base break-words">
               {currentIndex + 1}/{clients.length} {t("clients.reviews")}
             </div>
           </>
+        )}
+        </>
         )}
       </div>
     </section>

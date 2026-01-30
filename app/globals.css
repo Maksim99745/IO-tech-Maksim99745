@@ -33,3 +33,17 @@ body {
 [dir="ltr"] {
   direction: ltr;
 }
+
+/* Footer email input placeholder */
+input[type="email"]::placeholder {
+  color: black;
+  opacity: 1;
+}
+
+input[type="email"]:-ms-input-placeholder {
+  color: black;
+}
+
+input[type="email"]::-ms-input-placeholder {
+  color: black;
+}

@@ -62,48 +62,22 @@ export default function Footer() {
             >
               {({ isSubmitting, errors, touched }) => (
                 <div className="flex flex-col gap-2 flex-1 md:flex-initial">
-                  <div 
-                    className="relative bg-white rounded-[6px]"
-                    style={{
-                      width: '223px',
-                      height: '41px'
-                    }}
-                  >
+                  <div className="relative bg-white rounded-[6px] w-[223px] h-[41px]">
                     <Field
                       type="email"
                       name="email"
                       placeholder={t("footer.subscribePlaceholder")}
-                      className={`w-full h-full bg-transparent text-brown-dark py-2 rounded-[6px] focus:outline-none ${
+                      className={`w-full h-full bg-transparent py-2 rounded-[6px] focus:outline-none pl-[14px] pr-[111px] font-normal text-base leading-5 tracking-normal text-black ${
                         errors.email && touched.email
                           ? "border border-red-500"
                           : "border-0"
                       }`}
-                      style={{
-                        paddingLeft: '12px',
-                        paddingRight: '111px',
-                        fontWeight: 400,
-                        fontStyle: 'normal',
-                        fontSize: '16px',
-                        lineHeight: '20px',
-                        letterSpacing: '0%'
-                      }}
                       disabled={subscription.isLoading}
                     />
                     <button
                       type="submit"
                       disabled={subscription.isLoading || isSubmitting}
-                      className="absolute bg-brown-dark text-white rounded-[8px] hover:bg-brown-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed rtl:left-[5px] rtl:right-auto flex items-center justify-center"
-                      style={{
-                        width: '101px',
-                        height: '30px',
-                        top: '5px',
-                        right: '5px',
-                        fontWeight: 500,
-                        fontSize: '12px',
-                        lineHeight: '17.33px',
-                        letterSpacing: '0px',
-                        textAlign: 'center'
-                      }}
+                      className="absolute bg-brown-dark text-white rounded-[8px] hover:bg-brown-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center w-[101px] h-[30px] top-[5px] right-[5px] font-medium text-xs leading-[17.33px] tracking-normal text-center"
                     >
                       {subscription.isLoading ? t("common.loading") : t("footer.subscribe")}
                     </button>
@@ -164,13 +138,13 @@ export default function Footer() {
               {t("nav.about")}
             </Link>
             <Link href="/strategy" className="hover:text-brown-light transition-colors">
-              Our Strategy
+              {t("footer.ourStrategy")}
             </Link>
             <Link href="/advantages" className="hover:text-brown-light transition-colors">
-              Our Advantages
+              {t("footer.ourAdvantages")}
             </Link>
             <Link href="/responsibility" className="hover:text-brown-light transition-colors">
-              Social Responsibility
+              {t("footer.socialResponsibility")}
             </Link>
             <Link href="/services" className="hover:text-brown-light transition-colors">
               {t("nav.ourServices")}
@@ -178,7 +152,7 @@ export default function Footer() {
           </div>
 
           <div className="text-sm text-gray-300">
-            © 2024. All rights reserved.
+            {t("footer.copyright")}
           </div>
         </div>
 

@@ -266,7 +266,7 @@ export default function HeaderNavigation() {
               href="/appointment"
               className="hidden md:block bg-transparent text-white px-6 py-2 rounded-lg border border-white hover:bg-white/10 transition-colors font-medium"
             >
-              Book Appointment
+              {t("nav.bookAppointment")}
             </Link>
 
             <button

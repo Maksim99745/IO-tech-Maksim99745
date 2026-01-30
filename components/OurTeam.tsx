@@ -21,6 +21,7 @@ export default function OurTeam() {
         const locale = currentLanguage || i18n.language || "en";
         const members = await strapiApi.getTeamMembers(locale);
         setTeamMembers(members || []);
+        setCurrentIndex(0); // Сбрасываем индекс при смене языка
       } catch (error) {
         console.error("Failed to fetch team members:", error);
       } finally {
@@ -46,23 +47,13 @@ export default function OurTeam() {
     setCurrentIndex((prev) => (prev - 1 + totalPages) % totalPages);
   };
 
-  if (loading) {
-    return (
-      <section className="bg-[#F3F3F3] py-16">
-        <div className="container mx-auto px-6 md:px-24">
-          <div className="text-center text-gray-600">Loading...</div>
-        </div>
-      </section>
-    );
-  }
-
-  if (teamMembers.length === 0) {
+  if (teamMembers.length === 0 && !loading) {
     return null;
   }
 
   return (
-    <section id="team" className="bg-[#F3F3F3] w-full relative z-10 flex justify-center items-center" style={{ height: '746px' }}>
-      <div className="w-full max-w-[1400px] h-full flex flex-col justify-center items-center px-6 md:px-24 relative">
+    <section id="team" className="bg-[#F3F3F3] w-full relative z-10 flex justify-center items-center h-[746px] min-h-[746px]">
+      <div className="w-full max-w-[1400px] h-full flex flex-col justify-center items-center md:px-24 relative">
         <div className="text-center mb-12">
           <h2 className="text-[42px] font-bold text-[#4B2615] mb-4 leading-[52px] text-center">
             {t("team.title")}
@@ -72,67 +63,50 @@ export default function OurTeam() {
           </p>
         </div>
 
-        <div className="relative w-full max-w-[1400px] mx-auto">
+        <div className="relative w-full max-w-[1400px] mx-auto flex items-center">
           {teamMembers.length > itemsPerPage && (
-            <>
-              <button
-                onClick={prevPage}
-                className="absolute z-30 cursor-pointer hover:opacity-70 transition-opacity hidden lg:block"
-                aria-label="Previous team members"
-                style={{ 
-                  width: '13px', 
-                  height: '22px',
-                  left: '-151px',
-                  top: '50%',
-                  transform: 'translateY(-50%)'
-                }}
-              >
-                <Image
-                  src="/assets/left-arrow.svg"
-                  alt="Previous"
-                  width={13}
-                  height={22}
-                  className="w-full h-full"
-                />
-              </button>
-
-              <button
-                onClick={nextPage}
-                className="absolute z-30 cursor-pointer hover:opacity-70 transition-opacity hidden lg:block"
-                aria-label="Next team members"
-                style={{ 
-                  width: '13px', 
-                  height: '22px',
-                  right: '-151px',
-                  top: '50%',
-                  transform: 'translateY(-50%)'
-                }}
-              >
-                <Image
-                  src="/assets/right-arrow.svg"
-                  alt="Next"
-                  width={13}
-                  height={22}
-                  className="w-full h-full"
-                />
-              </button>
-            </>
+            <button
+              onClick={prevPage}
+              className="hidden md:block z-30 cursor-pointer hover:opacity-70 transition-opacity flex-shrink-0 w-[13px] h-[22px] mr-[115px] rtl:mr-0 rtl:ml-[115px]"
+              aria-label="Previous team members"
+            >
+              <Image
+                src="/assets/left-arrow.svg"
+                alt="Previous"
+                width={13}
+                height={22}
+                className="w-full h-full rtl:rotate-180"
+              />
+            </button>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-[28px] w-full">
-            {currentMembers.map((member, index) => {
+          <div className="grid grid-cols-1 md:grid-cols-3 w-full flex-1 gap-7">
+            {loading ? (
+              <>
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex flex-col items-center gap-6">
+                    <div className="relative w-[270px] h-[174px] bg-[#643F2E] overflow-hidden animate-pulse" />
+                    <div className="text-center">
+                      <div className="h-7 w-32 bg-gray-300 rounded mb-2 mx-auto animate-pulse" />
+                      <div className="h-5 w-24 bg-gray-300 rounded mx-auto animate-pulse" />
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              currentMembers.map((member, index) => {
               const globalIndex = currentIndex * itemsPerPage + index;
               const workerImages = [
                 "/assets/Worker_1.png",
-                "/assets/Worker_2.webp",
+                "/assets/Worker_2.jpg",
                 "/assets/Worker_3.avif",
                 "/assets/Worker_4.avif",
                 "/assets/Worker_1.png",
-                "/assets/Worker_2.webp",
+                "/assets/Worker_2.jpg",
                 "/assets/Worker_3.avif",
                 "/assets/Worker_4.avif",
                 "/assets/Worker_1.png",
-                "/assets/Worker_2.webp"
+                "/assets/Worker_2.jpg"
               ];
               const workerImage = workerImages[globalIndex % workerImages.length];
               
@@ -156,39 +130,26 @@ export default function OurTeam() {
                   )}
                 </div>
 
-                <div className="text-center">
-                  <h3 className="text-[22px] font-medium text-[#4B2615] mb-2 leading-[32px] text-center">
+                <div className="text-center w-full">
+                  <h3 className="text-[22px] font-medium text-[#4B2615] mb-2 leading-[32px] text-center h-[64px] flex items-center justify-center px-2 overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                     {member.name}
                   </h3>
-                  <p 
-                    className="text-[14px] font-bold uppercase leading-[26px] text-center mb-5"
-                    style={{ 
-                      letterSpacing: '2px',
-                      color: 'rgba(21.06, 20.34, 56.79, 0.40)'
-                    }}
-                  >
-                    {member.role}
+                  <p className="text-[14px] font-bold uppercase leading-[26px] text-center mb-5 tracking-[2px] text-[rgba(21.06,20.34,56.79,0.40)] min-h-[52px] flex items-center justify-center">
+                    {(() => {
+                      const roleKey = `team.roles.${member.role}`;
+                      const translated = t(roleKey);
+                      return translated !== roleKey ? translated : member.role;
+                    })()}
                   </p>
 
                   {(member.whatsapp || member.phone || member.email) && (
-                    <div 
-                      className="flex items-center justify-center mx-auto"
-                      style={{ 
-                        width: 'auto',
-                        height: '24px',
-                        gap: '12px'
-                      }}
-                    >
+                    <div className="flex items-center justify-center mx-auto h-6 gap-3">
                       {member.whatsapp && (
                         <a
                           href={`https://wa.me/${member.whatsapp.replace(/\D/g, "")}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center"
-                          style={{ 
-                            width: '22.5px',
-                            height: '16.2px'
-                          }}
+                          className="flex items-center justify-center w-[22.5px] h-4"
                           aria-label="WhatsApp"
                         >
                           <Image
@@ -203,11 +164,7 @@ export default function OurTeam() {
                       {member.phone && (
                         <a
                           href={`tel:${member.phone}`}
-                          className="flex items-center justify-center"
-                          style={{ 
-                            width: '24px',
-                            height: '18px'
-                          }}
+                          className="flex items-center justify-center w-6 h-[18px]"
                           aria-label="Phone"
                         >
                           <Image
@@ -222,11 +179,7 @@ export default function OurTeam() {
                       {member.email && (
                         <a
                           href={`mailto:${member.email}`}
-                          className="flex items-center justify-center"
-                          style={{ 
-                            width: '22.5px',
-                            height: '16.2px'
-                          }}
+                          className="flex items-center justify-center w-[22.5px] h-4"
                           aria-label="Email"
                         >
                           <Image
@@ -243,8 +196,25 @@ export default function OurTeam() {
                 </div>
               </div>
             );
-            })}
+            })
+            )}
           </div>
+
+          {teamMembers.length > itemsPerPage && (
+            <button
+              onClick={nextPage}
+              className="hidden md:block z-30 cursor-pointer hover:opacity-70 transition-opacity flex-shrink-0 w-[13px] h-[22px] ml-[115px] rtl:ml-0 rtl:mr-[115px]"
+              aria-label="Next team members"
+            >
+              <Image
+                src="/assets/right-arrow.svg"
+                alt="Next"
+                width={13}
+                height={22}
+                className="w-full h-full rtl:rotate-180"
+              />
+            </button>
+          )}
         </div>
       </div>
     </section>

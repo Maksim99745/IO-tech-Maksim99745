@@ -16,15 +16,32 @@
     "ourServices": "خدماتنا",
     "blog": "المدونة",
     "ourTeam": "فريقنا",
-    "contactUs": "اتصل بنا"
+    "contactUs": "اتصل بنا",
+    "bookAppointment": "حجز موعد"
   },
   "hero": {
     "title": "مرحباً",
-    "subtitle": "العنوان الفرعي الخاص بك هنا"
+    "subtitle": "العنوان الفرعي الخاص بك هنا",
+    "description": "نحن مكتب محاماة رائد يقدم خدمات قانونية شاملة للأفراد والشركات. فريقنا المتمرس من المحامين المتخصصين ملتزم بتقديم نتائج استثنائية وحماية حقوقك."
   },
   "team": {
     "title": "فريقنا",
-    "subtitle": "تعرف على خبرائنا"
+    "subtitle": "تعرف على محامينا المتمرسين الملتزمين بتقديم خدمة استثنائية وحماية حقوقك",
+    "roles": {
+      "Legal Advisor": "مستشار قانوني",
+      "Senior Legal Advisor": "مستشار قانوني أول",
+      "Corporate Lawyer": "محامي شركات",
+      "Family Lawyer": "محامي أسرة",
+      "Criminal Lawyer": "محامي جنائي",
+      "Real Estate Lawyer": "محامي عقارات",
+      "Employment Lawyer": "محامي عمل",
+      "Tax Lawyer": "محامي ضرائب",
+      "Intellectual Property Lawyer": "محامي ملكية فكرية",
+      "Immigration Lawyer": "محامي هجرة",
+      "Senior Partner": "شريك أول",
+      "Commercial Law Expert": "خبير قانون تجاري",
+      "Family Law Specialist": "أخصائي قانون أسرة"
+    }
   },
   "clients": {
     "title": "ماذا يقول عملاؤنا",
@@ -37,7 +54,11 @@
     "subscribeSuccess": "شكراً لك على الاشتراك!",
     "subscribeError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
     "duplicateEmail": "هذا البريد الإلكتروني مشترك بالفعل",
-    "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح"
+    "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح",
+    "ourStrategy": "استراتيجيتنا",
+    "ourAdvantages": "مزايانا",
+    "socialResponsibility": "المسؤولية الاجتماعية",
+    "copyright": "© 2024. جميع الحقوق محفوظة."
   },
   "search": {
     "title": "نتائج البحث",

@@ -1,5 +1,11 @@
 export type Language = 'en' | 'ar';
 
+export interface ServiceSubsection {
+  title: string;
+  description: string;
+  items?: string[];
+}
+
 export interface Service {
   id: number;
   slug: string;
@@ -10,6 +16,7 @@ export interface Service {
     url: string;
     alt: string;
   };
+  subsections?: ServiceSubsection[];
 }
 
 export interface TeamMember {

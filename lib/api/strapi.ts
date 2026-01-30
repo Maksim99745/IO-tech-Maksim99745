@@ -34,12 +34,38 @@ const transformService = (item: any): Service => {
   // Проверяем оба варианта: v4 (attributes) и v5 (прямые поля)
   const data = item.attributes || item;
   
+  let subsections: any[] | undefined = undefined;
+  
+  // Пытаемся получить subsections из разных источников
+  if (data.subsections) {
+    subsections = Array.isArray(data.subsections) ? data.subsections : [];
+  } else if (data.content) {
+    // Пытаемся распарсить JSON из content
+    try {
+      const parsed = typeof data.content === 'string' ? JSON.parse(data.content) : data.content;
+      if (parsed && parsed.subsections) {
+        subsections = parsed.subsections;
+      }
+    } catch (e) {
+      // Если не JSON, игнорируем
+    }
+  }
+  
   return {
     id: item.id,
     slug: data.slug,
     title: data.title,
     description: data.description || "",
-    content: data.content || "",
+    content: typeof data.content === 'string' && data.content.startsWith('{') 
+      ? (() => {
+          try {
+            const parsed = JSON.parse(data.content);
+            return parsed.footer || "";
+          } catch {
+            return data.content;
+          }
+        })()
+      : data.content || "",
     image: data.image?.data || data.image
       ? {
           url: data.image?.data?.attributes?.url 
@@ -48,6 +74,11 @@ const transformService = (item: any): Service => {
           alt: data.image?.data?.attributes?.alternativeText || data.image?.alternativeText || "",
         }
       : undefined,
+    subsections: subsections ? subsections.map((sub: any) => ({
+      title: sub.title || sub.attributes?.title || "",
+      description: sub.description || sub.attributes?.description || "",
+      items: sub.items || sub.attributes?.items || [],
+    })) : undefined,
   };
 };
 
@@ -196,44 +227,61 @@ export const strapiApi = {
     };
   },
 
-  async getTeamMembers(locale: string = "en") {
-    try {
-      const params: any = {
-        populate: "*",
-      };
-      
-      if (locale) {
-        params.locale = locale;
-      }
-      
-      const response = await api.get<any>("/team-members", { params });
-      console.log("Strapi team members response:", response.data);
-      
-      const strapiData = response.data?.data || response.data || [];
-      console.log("Strapi data array:", strapiData);
-      
-      if (!Array.isArray(strapiData)) {
-        console.error("Expected array but got:", typeof strapiData, strapiData);
-        return [];
-      }
-      
-      return strapiData
-        .filter((item: any) => item && (item.attributes || item))
-        .map((item: any) => {
-          try {
-            return transformTeamMember(item);
-          } catch (error) {
-            console.error("Error transforming team member:", item, error);
-            return null;
+    async getTeamMembers(locale: string = "en") {
+      try {
+        const params: any = {
+          populate: "*",
+          'pagination[pageSize]': 100,
+        };
+        
+        if (locale) {
+          params.locale = locale;
+        }
+        
+        const response = await api.get<any>("/team-members", { params });
+        const strapiData = response.data?.data || response.data || [];
+        
+        if (!Array.isArray(strapiData)) {
+          return [];
+        }
+        
+        const transformed = strapiData
+          .filter((item: any) => item && (item.attributes || item))
+          .map((item: any) => {
+            try {
+              return transformTeamMember(item);
+            } catch (error) {
+              console.error("Error transforming team member:", item, error);
+              return null;
+            }
+          })
+          .filter((item: any) => item !== null) as TeamMember[];
+        
+        // Дополнительная фильтрация по арабским символам, если локализация не работает
+        const arabicRegex = /[\u0600-\u06FF]/;
+        const filtered = transformed.filter((member: TeamMember) => {
+          const hasArabicInName = member.name && arabicRegex.test(member.name);
+          const hasArabicInRole = member.role && arabicRegex.test(member.role);
+          const hasArabic = hasArabicInName || hasArabicInRole;
+          
+          if (locale === 'en') {
+            // Для английского: исключаем записи с арабскими символами
+            return !hasArabic;
           }
-        })
-        .filter((item: any) => item !== null) as TeamMember[];
-    } catch (error: any) {
-      console.error("Error fetching team members:", error);
-      console.error("Error response:", error.response?.data);
-      throw error;
-    }
-  },
+          if (locale === 'ar') {
+            // Для арабского: показываем записи с арабскими символами
+            return hasArabic;
+          }
+          return true;
+        });
+        
+        return filtered;
+      } catch (error: any) {
+        console.error("Error fetching team members:", error);
+        console.error("Error response:", error.response?.data);
+        throw error;
+      }
+    },
 
   async searchTeamMembers(query: string, locale: string = "en", page: number = 1, pageSize: number = 10) {
     const params: any = {
@@ -257,39 +305,74 @@ export const strapiApi = {
     };
   },
 
-  async getClients(locale: string = "en") {
-    try {
-      const params: any = {
-        populate: "*",
-      };
-      
-      if (locale) {
-        params.locale = locale;
-      }
-      
-      const response = await api.get<any>("/clients", { params });
-      const strapiData = response.data?.data || response.data || [];
-      
-      if (!Array.isArray(strapiData)) {
-        return [];
-      }
-      
-      const transformed = strapiData.map((item: any) => {
-        try {
-          return transformClient(item);
-        } catch (error) {
-          console.error("Error transforming client:", item, error);
-          return null;
+    async getClients(locale: string = "en") {
+      try {
+        const params: any = {
+          populate: "*",
+          'pagination[pageSize]': 100,
+        };
+        
+        if (locale) {
+          params.locale = locale;
         }
-      }).filter((item: any) => item !== null);
-      
-      return transformed;
-    } catch (error: any) {
-      console.error("Error fetching clients:", error);
-      console.error("Error response:", error.response?.data);
-      throw error;
-    }
-  },
+        
+        const response = await api.get<any>("/clients", { params });
+        const strapiData = response.data?.data || response.data || [];
+        
+        if (!Array.isArray(strapiData)) {
+          return [];
+        }
+        
+        // Дополнительная фильтрация на клиенте, если Strapi не отфильтровал правильно
+        const filtered = strapiData.filter((item: any) => {
+          const data = item.attributes || item;
+          const itemLocale = data.locale || item.locale || 'en';
+          return itemLocale === locale;
+        });
+        
+        const transformed = filtered.map((item: any) => {
+          try {
+            return transformClient(item);
+          } catch (error) {
+            console.error("Error transforming client:", item, error);
+            return null;
+          }
+        }).filter((item: any) => item !== null);
+        
+        // Дополнительная фильтрация по арабским символам
+        const finalFiltered = transformed.filter((client: Client) => {
+          const arabicRegex = /[\u0600-\u06FF]/;
+          const englishRegex = /[a-zA-Z]/;
+          
+          const hasArabicInName = client.name && arabicRegex.test(client.name);
+          const hasArabicInTestimonial = client.testimonial && arabicRegex.test(client.testimonial);
+          const hasArabic = hasArabicInName || hasArabicInTestimonial;
+          
+          const hasEnglishInName = client.name && englishRegex.test(client.name);
+          const hasEnglishInTestimonial = client.testimonial && englishRegex.test(client.testimonial);
+          const hasEnglish = hasEnglishInName || hasEnglishInTestimonial;
+          
+          if (locale === 'en') {
+            // Для английского: исключаем записи с арабскими символами
+            return !hasArabic;
+          }
+          if (locale === 'ar') {
+            // Для арабского: показываем записи с арабскими символами
+            // Если есть арабские символы - показываем
+            if (hasArabic) return true;
+            // Если нет арабских символов - не показываем
+            return false;
+          }
+          return true;
+        });
+        
+        return finalFiltered;
+      } catch (error: any) {
+        console.error("Error fetching clients:", error);
+        console.error("Error response:", error.response?.data);
+        throw error;
+      }
+    },
 
   async getHeroContent(locale: string = "en"): Promise<HeroContent[] | null> {
     try {

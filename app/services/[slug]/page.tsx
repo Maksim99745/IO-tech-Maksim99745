@@ -66,12 +66,6 @@ export default async function ServiceDetailPage({ params, searchParams }: PagePr
   }
 
   return (
-    <>
-      <HeaderNavigation />
-      <main className="min-h-screen bg-black">
-        <ServiceDetailClient service={service} locale={locale} />
-      </main>
-      <Footer />
-    </>
+    <ServiceDetailClient service={service} locale={locale} />
   );
 }

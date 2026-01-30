@@ -29,12 +29,7 @@ export default function Home() {
             className="object-cover"
             priority
           />
-          <div 
-            className="absolute inset-0"
-            style={{
-              background: `linear-gradient(271.47deg, rgba(75, 38, 21, 0.28) 1.2%, rgba(75, 38, 21, 0.68) 86.38%)`,
-            }}
-          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[rgba(75,38,21,0.28)] via-[rgba(75,38,21,0.48)] to-[rgba(75,38,21,0.68)]" />
         </div>
         <div className="relative z-10 h-full flex flex-col">
           <HeaderNavigation />

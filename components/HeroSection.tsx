@@ -80,13 +80,8 @@ export default function HeroSection() {
                 <div className="flex flex-col items-center pt-[294px]">
                   <button
                     onClick={nextMember}
-                    className="w-[12px] h-[35px] flex items-center justify-center text-white text-[30px] leading-[100%] text-center mb-[88px]"
+                    className="w-[12px] h-[35px] flex items-center justify-center text-white text-[30px] leading-[100%] text-center mb-[88px] font-[FontAwesome] font-normal tracking-normal"
                     aria-label="Next team member"
-                    style={{ 
-                      fontFamily: 'FontAwesome',
-                      fontWeight: 400,
-                      letterSpacing: '0px'
-                    }}
                   >
                     <Image
                       src="/assets/fa-angle-left.svg"
@@ -125,19 +120,19 @@ export default function HeroSection() {
                   <p 
                     className="text-[18px] leading-[28px] font-medium text-white mb-[76px] max-w-[700px]"
                   >
-                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s
+                    {t("hero.description")}
                   </p>
 
                   <Link
                     href="/#team"
-                    className="w-[161px] h-[60px] bg-white text-brown-dark rounded-[12px] flex items-center justify-center hover:bg-gray-100 transition-colors font-medium"
+                    className="relative w-[161px] h-[60px] bg-white rounded-[12px] flex items-center justify-center hover:opacity-90 transition-opacity font-medium text-lg leading-[26px] text-[#4B2615] text-center"
                   >
                     {t("common.readMore")}
                   </Link>
                 </div>
               </div>
 
-              <div className="relative w-[374px] h-[374px] bg-[#643F2E] rounded-lg overflow-hidden ml-auto" style={{ marginTop: '235px' }}>
+              <div className="relative w-[374px] h-[374px] bg-[#643F2E] rounded-lg overflow-hidden ml-auto mt-[235px]">
                 {currentMember.image ? (
                   <Image
                     src={currentMember.image.url}

@@ -16,15 +16,32 @@
     "ourServices": "Our Services",
     "blog": "Blog",
     "ourTeam": "Our Team",
-    "contactUs": "Contact us"
+    "contactUs": "Contact us",
+    "bookAppointment": "Book Appointment"
   },
   "hero": {
     "title": "Welcome",
-    "subtitle": "Your subtitle here"
+    "subtitle": "Your subtitle here",
+    "description": "We are a leading law firm providing comprehensive legal services to individuals and businesses. Our experienced team of legal professionals is dedicated to delivering exceptional results and protecting your rights."
   },
   "team": {
     "title": "Our Team",
-    "subtitle": "Meet our experts"
+    "subtitle": "Meet our experienced legal professionals dedicated to providing exceptional service and protecting your rights",
+    "roles": {
+      "Legal Advisor": "Legal Advisor",
+      "Senior Legal Advisor": "Senior Legal Advisor",
+      "Corporate Lawyer": "Corporate Lawyer",
+      "Family Lawyer": "Family Lawyer",
+      "Criminal Lawyer": "Criminal Lawyer",
+      "Real Estate Lawyer": "Real Estate Lawyer",
+      "Employment Lawyer": "Employment Lawyer",
+      "Tax Lawyer": "Tax Lawyer",
+      "Intellectual Property Lawyer": "Intellectual Property Lawyer",
+      "Immigration Lawyer": "Immigration Lawyer",
+      "Senior Partner": "Senior Partner",
+      "Commercial Law Expert": "Commercial Law Expert",
+      "Family Law Specialist": "Family Law Specialist"
+    }
   },
   "clients": {
     "title": "What our clients are saying",
@@ -37,7 +54,11 @@
     "subscribeSuccess": "Thank you for subscribing!",
     "subscribeError": "Something went wrong. Please try again.",
     "duplicateEmail": "This email is already subscribed",
-    "invalidEmail": "Please enter a valid email address"
+    "invalidEmail": "Please enter a valid email address",
+    "ourStrategy": "Our Strategy",
+    "ourAdvantages": "Our Advantages",
+    "socialResponsibility": "Social Responsibility",
+    "copyright": "© 2024. All rights reserved."
   },
   "search": {
     "title": "Search Results",
