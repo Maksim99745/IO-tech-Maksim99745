@@ -31,26 +31,6 @@ Application will be available at [http://localhost:3000](http://localhost:3000)
 
 The application will connect to the remote Strapi server with all the data pre-configured.
 
-## Deploying Strapi
-
-To make Strapi accessible for reviewers, you need to deploy it. Options:
-
-1. **Railway** (easiest): https://railway.app
-   - Connect your GitHub repo
-   - Deploy `strapi-backend` folder
-   - Get the public URL
-
-2. **Render**: https://render.com
-   - Create new Web Service
-   - Point to `strapi-backend` folder
-   - Set build command: `npm install && npm run build`
-   - Set start command: `npm start`
-
-3. **Heroku**: https://heroku.com
-   - Create new app
-   - Deploy `strapi-backend` folder
-
-After deployment, update `NEXT_PUBLIC_STRAPI_URL` in `.env.local` with your Strapi server URL.
 
 ## Technologies
 
