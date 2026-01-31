@@ -668,9 +668,42 @@ async function createHeroPage(page, locale, existingPage = null) {
   }
 }
 
+async function checkIfDataExists() {
+  try {
+    // Check if we already have data by checking services count
+    const servicesResponse = await makeRequest(`${API_URL}/services?pagination[pageSize]=1`, 'GET');
+    const servicesCount = servicesResponse.data?.length || 0;
+    
+    // Check team members
+    const teamResponse = await makeRequest(`${API_URL}/team-members?pagination[pageSize]=1`, 'GET');
+    const teamCount = teamResponse.data?.length || 0;
+    
+    // If we have both services and team members, data already exists
+    if (servicesCount > 0 && teamCount > 0) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    // If check fails, assume no data exists
+    return false;
+  }
+}
+
 async function seedData() {
   console.log('🌱 Starting data seeding...\n');
   console.log(`📡 Connecting to: ${API_URL}\n`);
+  
+  // Check if data already exists
+  console.log('🔍 Checking if data already exists...');
+  const dataExists = await checkIfDataExists();
+  
+  if (dataExists) {
+    console.log('✅ Data already exists in database. Skipping seed.\n');
+    console.log('💡 To re-seed data, delete existing entries from Strapi Admin panel first.');
+    return;
+  }
+  
+  console.log('📝 No existing data found. Proceeding with seed...\n');
 
   // Create services (both English and Arabic versions)
   console.log('📋 Creating services...');

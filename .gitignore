@@ -34,3 +34,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# setup scripts generated files
+strapi.pid
+strapi.log
+
+# deployment
+.vercel

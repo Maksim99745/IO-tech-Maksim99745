@@ -301,6 +301,7 @@ export const strapiApi = {
   },
 
   async searchServices(query: string, locale: string = "en", page: number = 1, pageSize: number = 10) {
+    // Get all services matching the query (pagination handled by Strapi)
     const params: any = {
       "filters[$or][0][title][$containsi]": query,
       "filters[$or][1][description][$containsi]": query,
@@ -309,16 +310,36 @@ export const strapiApi = {
       populate: "*",
     };
     
-    if (locale) {
-      params.locale = locale;
-    }
+    // Don't send locale param to Strapi - we filter client-side
+    // This ensures consistent behavior with getServices
     
     const response = await api.get<any>("/services", { params });
     const strapiData = response.data?.data || response.data || [];
     
+    // Transform all services
+    const transformed = Array.isArray(strapiData) ? strapiData.map(transformService) : [];
+    
+    // Filter by locale client-side (same as getServices)
+    const filtered = filterByLocale(transformed, locale, (service) => [
+      service.title,
+      service.description,
+    ]);
+    
+    // Get pagination info from Strapi response
+    const pagination = response.data?.meta?.pagination || response.data?.pagination;
+    
+    // Adjust pagination if we filtered out items
+    // Note: This is an approximation since we filter client-side
+    // For accurate pagination, Strapi i18n should be configured server-side
+    const adjustedPagination = pagination ? {
+      ...pagination,
+      total: filtered.length, // This is approximate
+      pageCount: Math.ceil(filtered.length / pageSize),
+    } : undefined;
+    
     return {
-      data: Array.isArray(strapiData) ? strapiData.map(transformService) : [],
-      pagination: response.data?.meta?.pagination || response.data?.pagination,
+      data: filtered,
+      pagination: adjustedPagination,
     };
   },
 
@@ -390,6 +411,7 @@ export const strapiApi = {
     },
 
   async searchTeamMembers(query: string, locale: string = "en", page: number = 1, pageSize: number = 10) {
+    // Get all team members matching the query (pagination handled by Strapi)
     const params: any = {
       "filters[$or][0][name][$containsi]": query,
       "filters[$or][1][role][$containsi]": query,
@@ -398,16 +420,36 @@ export const strapiApi = {
       populate: "*",
     };
     
-    if (locale) {
-      params.locale = locale;
-    }
+    // Don't send locale param to Strapi - we filter client-side
+    // This ensures consistent behavior with getTeamMembers
     
     const response = await api.get<any>("/team-members", { params });
     const strapiData = response.data?.data || response.data || [];
     
+    // Transform all team members
+    const transformed = Array.isArray(strapiData) ? strapiData.map(transformTeamMember) : [];
+    
+    // Filter by locale client-side (same as getTeamMembers)
+    const filtered = filterByLocale(transformed, locale, (member) => [
+      member.name,
+      member.role,
+    ]);
+    
+    // Get pagination info from Strapi response
+    const pagination = response.data?.meta?.pagination || response.data?.pagination;
+    
+    // Adjust pagination if we filtered out items
+    // Note: This is an approximation since we filter client-side
+    // For accurate pagination, Strapi i18n should be configured server-side
+    const adjustedPagination = pagination ? {
+      ...pagination,
+      total: filtered.length, // This is approximate
+      pageCount: Math.ceil(filtered.length / pageSize),
+    } : undefined;
+    
     return {
-      data: Array.isArray(strapiData) ? strapiData.map(transformTeamMember) : [],
-      pagination: response.data?.meta?.pagination || response.data?.pagination,
+      data: filtered,
+      pagination: adjustedPagination,
     };
   },
 
