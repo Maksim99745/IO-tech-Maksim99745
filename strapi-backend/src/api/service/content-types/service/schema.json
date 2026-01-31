@@ -37,6 +37,11 @@
       "allowedTypes": [
         "images"
       ]
+    },
+    "subsections": {
+      "type": "component",
+      "repeatable": true,
+      "component": "subsection.subsection"
     }
   }
 }

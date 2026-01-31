@@ -22,7 +22,9 @@ export default function Clients() {
         const clientsData = await strapiApi.getClients(locale);
         setClients((clientsData || []).filter((client): client is Client => client !== null));
       } catch (error) {
-        console.error("Failed to fetch clients:", error);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Failed to fetch clients:", error);
+        }
         setClients([]);
       } finally {
         setLoading(false);
@@ -66,12 +68,15 @@ export default function Clients() {
         </div>
 
         <div className="absolute bg-[#643F2E] overflow-hidden w-[374px] h-[374px] left-[122px] top-[312px]">
-          <Image
-            src={currentClient.image?.url || "/assets/Worker picture.png"}
-            alt={currentClient.image?.alt || currentClient.name || "Client"}
-            fill
-            className="object-cover"
-          />
+          {currentClient.image?.url ? (
+            <img
+              src={currentClient.image.url}
+              alt={currentClient.image.alt || currentClient.name || "Client"}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-[#643F2E]" />
+          )}
         </div>
 
         {currentClient.testimonial && (

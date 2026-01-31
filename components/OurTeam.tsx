@@ -21,9 +21,11 @@ export default function OurTeam() {
         const locale = currentLanguage || i18n.language || "en";
         const members = await strapiApi.getTeamMembers(locale);
         setTeamMembers(members || []);
-        setCurrentIndex(0); // Сбрасываем индекс при смене языка
+        setCurrentIndex(0);
       } catch (error) {
-        console.error("Failed to fetch team members:", error);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Failed to fetch team members:", error);
+        }
       } finally {
         setLoading(false);
       }
@@ -94,39 +96,17 @@ export default function OurTeam() {
                 ))}
               </>
             ) : (
-              currentMembers.map((member, index) => {
-              const globalIndex = currentIndex * itemsPerPage + index;
-              const workerImages = [
-                "/assets/Worker_1.png",
-                "/assets/Worker_2.jpg",
-                "/assets/Worker_3.avif",
-                "/assets/Worker_4.avif",
-                "/assets/Worker_1.png",
-                "/assets/Worker_2.jpg",
-                "/assets/Worker_3.avif",
-                "/assets/Worker_4.avif",
-                "/assets/Worker_1.png",
-                "/assets/Worker_2.jpg"
-              ];
-              const workerImage = workerImages[globalIndex % workerImages.length];
-              
-              return (
+              currentMembers.map((member) => (
               <div key={member.id} className="flex flex-col items-center gap-6">
                 <div className="relative w-[270px] h-[174px] bg-[#643F2E] overflow-hidden">
-                  {member.image ? (
-                    <Image
+                  {member.image?.url ? (
+                    <img
                       src={member.image.url}
                       alt={member.image.alt || member.name}
-                      fill
-                      className="object-cover"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
-                    <Image
-                      src={workerImage}
-                      alt={`Team member ${globalIndex + 1}`}
-                      fill
-                      className="object-cover"
-                    />
+                    <div className="w-full h-full bg-[#643F2E]" />
                   )}
                 </div>
 
@@ -152,7 +132,7 @@ export default function OurTeam() {
                         aria-label="WhatsApp"
                       >
                         <Image
-                          src="/assets/Group 1000003317 (1).png"
+                          src="/assets/whatsapp-icon.png"
                           alt="WhatsApp"
                           width={22}
                           height={22}
@@ -199,8 +179,7 @@ export default function OurTeam() {
                   </div>
                 </div>
               </div>
-            );
-            })
+              ))
             )}
           </div>
 

@@ -6,30 +6,35 @@ import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setSearchQuery, setSearchOpen } from "@/store/slices/searchSlice";
 import { useRouter } from "next/navigation";
+import { Service } from "@/types";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function HeaderNavigation() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
   const { query, isSearchOpen } = useAppSelector((state) => state.search);
+  const { currentLanguage } = useAppSelector((state) => state.language);
   const router = useRouter();
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [services, setServices] = useState<any[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
         const { strapiApi } = await import("@/lib/api/strapi");
-        const result = await strapiApi.getServices("en", 1, 10);
+        const locale = currentLanguage || i18n.language || "en";
+        const result = await strapiApi.getServices(locale, 1, 100);
         setServices(result.data);
       } catch (error) {
-        console.error("Failed to fetch services:", error);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Failed to fetch services:", error);
+        }
       }
     };
     fetchServices();
-  }, []);
+  }, [currentLanguage, i18n.language]);
 
   useEffect(() => {
     return () => {
@@ -123,73 +128,35 @@ export default function HeaderNavigation() {
                     setCloseTimeout(timeout);
                   }}
                 >
-                  <div className="grid grid-cols-4 gap-8 mb-6">
-                    <div className="space-y-2">
-                      <Link href="/services/legal-consultation" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Legal Consultation Services
-                      </Link>
-                      <Link href="/services/foreign-investment" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Foreign Investment Services
-                      </Link>
-                      <Link href="/services/contracts" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Contracts
-                      </Link>
-                      <Link href="/services/notarization" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Notarization
-                      </Link>
-                      <Link href="/services/insurance" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Insurance
-                      </Link>
+                  {services.length > 0 ? (
+                    <div className="grid grid-cols-4 gap-8 mb-6">
+                      {Array.from({ length: 4 }).map((_, colIndex) => {
+                        const itemsPerColumn = Math.ceil(services.length / 4);
+                        const startIndex = colIndex * itemsPerColumn;
+                        const endIndex = Math.min(startIndex + itemsPerColumn, services.length);
+                        const columnServices = services.slice(startIndex, endIndex);
+                        
+                        return (
+                          <div key={colIndex} className="space-y-2">
+                            {columnServices.map((service) => (
+                              <Link
+                                key={service.id}
+                                href={`/services/${service.slug}`}
+                                className="block text-white hover:text-brown-light transition-colors text-base py-2"
+                                onClick={() => setIsServicesOpen(false)}
+                              >
+                                {service.title}
+                              </Link>
+                            ))}
+                          </div>
+                        );
+                      })}
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Link href="/services/defense" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        ...and Defense in All Cases
-                      </Link>
-                      <Link href="/services/banks-financial" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Banks and Financial Institutions
-                      </Link>
-                      <Link href="/services/corporate-governance" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Corporate Governance Services
-                      </Link>
-                      <Link href="/services/companies-liquidation" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Companies Liquidation
-                      </Link>
-                      <Link href="/services/internal-regulations" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Internal Regulations for Companies
-                      </Link>
+                  ) : (
+                    <div className="text-white text-center py-4">
+                      {t("common.loading")}
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Link href="/services/companies-institutions" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Services for Companies and Institutions
-                      </Link>
-                      <Link href="/services/arbitration" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Arbitration
-                      </Link>
-                      <Link href="/services/intellectual-property" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Intellectual Property
-                      </Link>
-                      <Link href="/services/corporate-restructuring" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Corporate Restructuring and Reorganization
-                      </Link>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Link href="/services/establishing-companies" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Establishing National and Foreign Companies
-                      </Link>
-                      <Link href="/services/commercial-agencies" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Commercial Agencies
-                      </Link>
-                      <Link href="/services/vision-2030" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Supporting Vision 2030
-                      </Link>
-                      <Link href="/services/estates" className="block text-white hover:text-brown-light transition-colors text-base py-2">
-                        Estates
-                      </Link>
-                    </div>
-                  </div>
+                  )}
                 </div>
               )}
             </div>
@@ -216,7 +183,6 @@ export default function HeaderNavigation() {
             </Link>
           </div>
 
-          {/* Элементы справа: поиск, язык, кнопка */}
           <div className="flex items-center space-x-4 rtl:space-x-reverse flex-shrink-0">
             <div className="relative">
               {isSearchOpen ? (

@@ -19,7 +19,9 @@ async function getService(slug: string, locale: string = "en"): Promise<Service 
   try {
     return await strapiApi.getServiceBySlug(slug, locale);
   } catch (error) {
-    console.error("Error fetching service:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error fetching service:", error);
+    }
     return null;
   }
 }
@@ -52,7 +54,9 @@ export async function generateStaticParams() {
       slug: service.slug,
     }));
   } catch (error) {
-    console.error("Error generating static params:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error generating static params:", error);
+    }
     return [];
   }
 }

@@ -22,7 +22,9 @@ export default function ServicesList() {
         const result = await strapiApi.getServices(locale, 1, 6);
         setServices(result.data);
       } catch (error) {
-        console.error("Failed to fetch services:", error);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Failed to fetch services:", error);
+        }
       } finally {
         setLoading(false);
       }
@@ -33,8 +35,15 @@ export default function ServicesList() {
 
   if (loading) {
     return (
-      <section id="services" className="bg-black py-16">
-        <div className="container mx-auto px-6 md:px-24">
+      <section id="services" className="bg-black py-16 relative">
+        <div 
+          className="absolute inset-0 z-0"
+          style={{
+            opacity: 0.0156,
+            background: 'url(/assets/Services bg.png) lightgray 0px 0px / 100% 100% no-repeat',
+          }}
+        />
+        <div className="container mx-auto px-6 md:px-24 relative z-10">
           <div className="text-center text-gray-400">Loading...</div>
         </div>
       </section>
@@ -46,8 +55,18 @@ export default function ServicesList() {
   }
 
   return (
-    <section id="services" className="bg-black py-16 md:py-24">
-      <div className="container mx-auto px-6 md:px-24">
+    <section 
+      id="services" 
+      className="bg-black py-16 md:py-24 relative"
+    >
+      <div 
+        className="absolute inset-0 z-0"
+        style={{
+          opacity: 0.0156,
+          background: 'url(/assets/Services bg.png) lightgray 0px 0px / 100% 100% no-repeat',
+        }}
+      />
+      <div className="container mx-auto px-6 md:px-24 relative z-10">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             {t("nav.services")}
