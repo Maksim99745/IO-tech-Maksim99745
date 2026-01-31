@@ -61,15 +61,15 @@ export async function generateStaticParams() {
   }
 }
 
-export default async function ServiceDetailPage({ params, searchParams }: PageProps) {
-  const locale = searchParams.locale || "en";
-  const service = await getService(params.slug, locale);
+export default async function ServiceDetailPage({ params }: PageProps) {
+  // Always fetch English version on server, client will reload with correct locale
+  const service = await getService(params.slug, "en");
 
   if (!service) {
     notFound();
   }
 
   return (
-    <ServiceDetailClient service={service} locale={locale} />
+    <ServiceDetailClient service={service} locale="en" />
   );
 }

@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Из Figma дизайна (улучшенный парсинг)
+        // From Figma design (improved parsing)
         brown: {
           dark: "#4b2615",
           DEFAULT: "#4b2615",

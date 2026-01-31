@@ -1,6 +1,6 @@
 import type { Schema, Struct } from "@strapi/strapi";
 
-export interface SubsectionSchema extends Struct.ComponentSchema {
+export interface SubsectionSubsection extends Struct.ComponentSchema {
   collectionName: "components_subsection";
   info: {
     description: "";
@@ -16,7 +16,7 @@ export interface SubsectionSchema extends Struct.ComponentSchema {
 declare module "@strapi/strapi" {
   export module Public {
     export interface ComponentSchemas {
-      "subsection.schema": SubsectionSchema;
+      "subsection.subsection": SubsectionSubsection;
     }
   }
 }

@@ -215,7 +215,7 @@ export default function HeroSection() {
                         img.style.display = 'none';
                         const errorDiv = document.createElement('div');
                         errorDiv.className = 'w-full h-full flex items-center justify-center bg-red-900/20 text-white text-xs p-4';
-                        errorDiv.textContent = 'Ошибка загрузки изображения';
+                        errorDiv.textContent = 'Image loading error';
                         img.parentElement?.appendChild(errorDiv);
                       }}
                     />
@@ -223,9 +223,9 @@ export default function HeroSection() {
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-[#643F2E]">
                     <div className="text-center text-white/50 text-sm px-4">
-                      <p className="mb-2">Изображение не загружено</p>
-                      <p className="text-xs">Добавьте медиа файл в Strapi CMS</p>
-                      <p className="text-xs mt-1">Минимальная ширина: 374px</p>
+                      <p className="mb-2">Image not loaded</p>
+                      <p className="text-xs">Add media file in Strapi CMS</p>
+                      <p className="text-xs mt-1">Minimum width: 374px</p>
                     </div>
                   </div>
                 )}
@@ -237,33 +237,33 @@ export default function HeroSection() {
         <div className="relative z-20 h-full flex items-center justify-center">
           <div className="text-center max-w-2xl px-6">
             <div className="text-white text-xl mb-4 font-semibold">
-              {error ? "Ошибка загрузки контента" : "Контент не найден"}
+              {error ? "Content loading error" : "Content not found"}
             </div>
             {error && (
               <div className="text-brown-light text-sm mb-4 bg-red-900/20 border border-red-700/50 rounded-lg p-4">
-                <p className="font-medium mb-2">Ошибка: {error}</p>
+                <p className="font-medium mb-2">Error: {error}</p>
                 <p className="text-xs opacity-80">
-                  Проверьте, что Strapi CMS запущен и доступен по адресу: {API_BASE_URL}
+                  Make sure Strapi CMS is running and accessible at: {API_BASE_URL}
                 </p>
               </div>
             )}
             <div className="text-brown-light text-sm space-y-2">
-              <p className="font-medium">Для отображения hero секции необходимо:</p>
+              <p className="font-medium">To display hero section you need to:</p>
               <ol className="list-decimal list-inside text-left space-y-1 text-xs opacity-90 max-w-md mx-auto">
-                <li>Открыть Strapi Admin панель</li>
-                <li>Перейти в коллекцию "Page" (Pages)</li>
-                <li>Создать новую запись с полями:
+                <li>Open Strapi Admin panel</li>
+                <li>Go to &quot;Page&quot; collection (Pages)</li>
+                <li>Create a new entry with fields:
                   <ul className="list-disc list-inside ml-4 mt-1 space-y-0.5">
-                    <li>Title (обязательно)</li>
-                    <li>Subtitle (опционально)</li>
-                    <li>Description (опционально)</li>
-                    <li>CTA Text (текст кнопки)</li>
-                    <li>CTA Link (ссылка для кнопки)</li>
-                    <li>Media (изображение или видео)</li>
-                    <li>Media Type (image или video)</li>
+                    <li>Title (required)</li>
+                    <li>Subtitle (optional)</li>
+                    <li>Description (optional)</li>
+                    <li>CTA Text (button text)</li>
+                    <li>CTA Link (button link)</li>
+                    <li>Media (image or video)</li>
+                    <li>Media Type (image or video)</li>
                   </ul>
                 </li>
-                <li>Сохранить и опубликовать запись</li>
+                <li>Save and publish the entry</li>
               </ol>
             </div>
           </div>

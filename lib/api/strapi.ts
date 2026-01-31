@@ -193,18 +193,36 @@ export const strapiApi = {
         populate: "*",
       };
       
-      if (locale) {
-        params.locale = locale;
-      }
+      // Don't send locale param to Strapi - we filter client-side
+      // if (locale) {
+      //   params.locale = locale;
+      // }
       
       const response = await api.get<any>("/services", { params });
       const strapiData = response.data?.data || response.data || [];
+      
+      if (process.env.NODE_ENV === "development") {
+        console.log(`[Strapi API] Fetched ${strapiData.length} services from API`);
+      }
+      
       const transformed = Array.isArray(strapiData) ? strapiData.map(transformService) : [];
+      
+      if (process.env.NODE_ENV === "development") {
+        console.log(`[Strapi API] Transformed ${transformed.length} services`);
+      }
       
       const filtered = filterByLocale(transformed, locale, (service) => [
         service.title,
         service.description,
       ]);
+      
+      if (process.env.NODE_ENV === "development") {
+        console.log(`[Strapi API] Filtered to ${filtered.length} services for locale "${locale}"`);
+        if (filtered.length === 0 && transformed.length > 0) {
+          console.warn(`[Strapi API] All services were filtered out! Check filterByLocale logic.`);
+          console.log(`[Strapi API] Sample service titles:`, transformed.slice(0, 3).map(s => s.title));
+        }
+      }
       
       const originalPagination = response.data?.meta?.pagination || response.data?.pagination;
       const updatedPagination = originalPagination ? {
@@ -219,31 +237,67 @@ export const strapiApi = {
       };
     } catch (error: unknown) {
       if (process.env.NODE_ENV === "development") {
-        const axiosError = error as { response?: { data?: unknown } };
+        const axiosError = error as { response?: { data?: unknown }; message?: string };
         console.error("Error fetching services:", error);
+        console.error("Error message:", axiosError.message);
         console.error("Error response:", axiosError.response?.data);
+        console.error("API URL:", `${API_BASE_URL}/api/services`);
       }
-      throw error;
+      // Return empty data instead of throwing to prevent component crash
+      return {
+        data: [],
+        pagination: undefined,
+      };
     }
   },
 
   async getServiceBySlug(slug: string, locale: string = "en") {
-    const params: any = {
-      "filters[slug][$eq]": slug,
-      populate: "*",
-    };
+    // Try both slug and slug-ar for Arabic
+    const slugsToTry = locale === "ar" 
+      ? [slug, `${slug}-ar`, slug.replace(/-ar$/, "")] 
+      : [slug, slug.replace(/-ar$/, "")];
     
-    if (locale) {
-      params.locale = locale;
+    for (const slugToTry of slugsToTry) {
+      const params: any = {
+        "filters[slug][$eq]": slugToTry,
+        populate: "*",
+      };
+      
+      try {
+        const response = await api.get<any>("/services", { params });
+        const strapiData = response.data?.data || response.data || [];
+        
+        if (!Array.isArray(strapiData) || strapiData.length === 0) {
+          continue; // Try next slug
+        }
+        
+        // Transform all found services
+        const transformed = strapiData.map(transformService);
+        
+        // Filter by locale
+        const filtered = filterByLocale(transformed, locale, (service) => [
+          service.title,
+          service.description,
+        ]);
+        
+        if (filtered.length > 0) {
+          if (process.env.NODE_ENV === "development") {
+            console.log(`[Strapi API] Found service with slug "${slugToTry}" for locale "${locale}"`);
+          }
+          return filtered[0];
+        }
+      } catch (error) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(`Error fetching service with slug "${slugToTry}":`, error);
+        }
+        continue; // Try next slug
+      }
     }
     
-    const response = await api.get<any>("/services", { params });
-    const strapiData = response.data?.data || response.data || [];
-    
-    if (!Array.isArray(strapiData) || strapiData.length === 0) {
-      return null;
+    if (process.env.NODE_ENV === "development") {
+      console.warn(`[Strapi API] Service not found for slug "${slug}" and locale "${locale}"`);
     }
-    return transformService(strapiData[0]);
+    return null;
   },
 
   async searchServices(query: string, locale: string = "en", page: number = 1, pageSize: number = 10) {
@@ -275,14 +329,22 @@ export const strapiApi = {
           'pagination[pageSize]': 100,
         };
         
-        if (locale) {
-          params.locale = locale;
-        }
+        // Don't send locale param to Strapi - we filter client-side
+        // if (locale) {
+        //   params.locale = locale;
+        // }
         
         const response = await api.get<any>("/team-members", { params });
         const strapiData = response.data?.data || response.data || [];
         
+        if (process.env.NODE_ENV === "development") {
+          console.log(`[Strapi API] Fetched ${strapiData.length} team members from API`);
+        }
+        
         if (!Array.isArray(strapiData)) {
+          if (process.env.NODE_ENV === "development") {
+            console.warn("[Strapi API] Response is not an array:", strapiData);
+          }
           return [];
         }
         
@@ -300,19 +362,30 @@ export const strapiApi = {
           })
           .filter((item: any) => item !== null) as TeamMember[];
         
+        if (process.env.NODE_ENV === "development") {
+          console.log(`[Strapi API] Transformed ${transformed.length} team members`);
+        }
+        
         const filtered = filterByLocale(transformed, locale, (member) => [
           member.name,
           member.role,
         ]);
         
+        if (process.env.NODE_ENV === "development") {
+          console.log(`[Strapi API] Filtered to ${filtered.length} team members for locale "${locale}"`);
+        }
+        
         return filtered;
       } catch (error: unknown) {
         if (process.env.NODE_ENV === "development") {
-          const axiosError = error as { response?: { data?: unknown } };
+          const axiosError = error as { response?: { data?: unknown }; message?: string };
           console.error("Error fetching team members:", error);
+          console.error("Error message:", axiosError.message);
           console.error("Error response:", axiosError.response?.data);
+          console.error("API URL:", `${API_BASE_URL}/api/team-members`);
         }
-        throw error;
+        // Return empty array instead of throwing to prevent component crash
+        return [];
       }
     },
 
@@ -448,7 +521,7 @@ export const strapiApi = {
 
   async subscribeEmail(email: string) {
     try {
-      // Strapi v5 формат: { data: { email: ... } }
+      // Strapi v5 format: { data: { email: ... } }
       const response = await api.post("/subscribers", {
         data: {
           email,
