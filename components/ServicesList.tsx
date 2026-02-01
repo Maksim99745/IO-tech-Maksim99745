@@ -44,7 +44,14 @@ export default function ServicesList() {
           }}
         />
         <div className="container mx-auto px-6 md:px-24 relative z-10">
-          <div className="text-center text-gray-400">Loading...</div>
+          <div className="text-center">
+            <div className="text-white text-xl mb-3 font-medium">
+              {t("common.serverLoading")}
+            </div>
+            <div className="text-gray-400 text-sm max-w-2xl mx-auto">
+              {t("common.serverLoadingNote")}
+            </div>
+          </div>
         </div>
       </section>
     );

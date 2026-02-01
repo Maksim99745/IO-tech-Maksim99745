@@ -53,7 +53,14 @@ export default function Clients() {
       <div className="w-full max-w-[1401.10px] h-full relative">
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-white">Loading clients...</div>
+            <div className="text-center px-6">
+              <div className="text-white text-xl mb-3 font-medium">
+                {t("common.serverLoading")}
+              </div>
+              <div className="text-white/80 text-sm max-w-2xl">
+                {t("common.serverLoadingNote")}
+              </div>
+            </div>
           </div>
         )}
         

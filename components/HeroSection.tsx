@@ -76,7 +76,14 @@ export default function HeroSection() {
   if (loading) {
     return (
       <section className="relative flex-1 bg-transparent flex items-center justify-center w-full">
-        <div className="relative z-20 text-white text-xl">Loading...</div>
+        <div className="relative z-20 text-center px-6">
+          <div className="text-white text-xl mb-3 font-medium">
+            {t("common.serverLoading")}
+          </div>
+          <div className="text-white/80 text-sm max-w-2xl">
+            {t("common.serverLoadingNote")}
+          </div>
+        </div>
       </section>
     );
   }

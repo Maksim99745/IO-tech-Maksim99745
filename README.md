@@ -9,6 +9,8 @@ Next.js application with Strapi CMS for a law firm.
 - **Strapi Admin:** https://io-tech-maksim99745.onrender.com/admin
 - **Strapi API:** https://io-tech-maksim99745.onrender.com/api
 
+> ⚠️ **Important Note:** This project is deployed on a free hosting plan. After 10-15 minutes of inactivity, the server goes to sleep. When you first access the application, it may take a few minutes for the server to wake up and start responding. This is normal behavior for free hosting tiers. Please be patient during the initial load.
+
 ## 📋 Local Development Setup
 
 ### 1. Install Frontend Dependencies

@@ -101,6 +101,16 @@ export default function OurTeam() {
           <div className="grid grid-cols-1 md:grid-cols-3 w-full flex-1 gap-7">
             {loading ? (
               <>
+                <div className="col-span-full flex flex-col items-center gap-4 mb-4">
+                  <div className="text-center">
+                    <p className="text-[#4B2615] text-lg font-medium mb-2">
+                      {t("common.serverLoading")}
+                    </p>
+                    <p className="text-[#4B2615] text-sm opacity-70 max-w-2xl">
+                      {t("common.serverLoadingNote")}
+                    </p>
+                  </div>
+                </div>
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="flex flex-col items-center gap-6">
                     <div className="relative w-[270px] h-[174px] bg-[#643F2E] overflow-hidden animate-pulse" />

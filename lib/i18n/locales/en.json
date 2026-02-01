@@ -6,7 +6,9 @@
     "email": "Email",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "serverLoading": "Server is starting up...",
+    "serverLoadingNote": "Note: In the free deployment version, the server may take a few minutes to wake up after inactivity. Please wait."
   },
   "nav": {
     "home": "Home",
