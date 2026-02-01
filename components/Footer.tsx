@@ -176,6 +176,7 @@ export default function Footer() {
               <Link 
                 href="/strategy" 
                 className="hover:text-brown-light transition-colors"
+                prefetch={false}
                 style={{
                   fontSize: '16px',
                   fontWeight: '400',
@@ -187,6 +188,7 @@ export default function Footer() {
               <Link 
                 href="/advantages" 
                 className="hover:text-brown-light transition-colors"
+                prefetch={false}
                 style={{
                   fontSize: '16px',
                   fontWeight: '400',
@@ -198,6 +200,7 @@ export default function Footer() {
               <Link 
                 href="/responsibility" 
                 className="hover:text-brown-light transition-colors"
+                prefetch={false}
                 style={{
                   fontSize: '16px',
                   fontWeight: '400',
@@ -209,6 +212,7 @@ export default function Footer() {
               <Link 
                 href="/services" 
                 className="hover:text-brown-light transition-colors"
+                prefetch={false}
                 style={{
                   fontSize: '16px',
                   fontWeight: '400',

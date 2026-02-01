@@ -200,7 +200,7 @@ export default function HeroSection() {
                       const video = e.currentTarget;
                       video.style.display = 'none';
                       const img = document.createElement('img');
-                      img.src = '/assets/Home  bg image.png';
+                      img.src = '/assets/Image (6).png';
                       img.alt = currentContent.media.alt || currentContent.title;
                       img.className = 'w-full h-full object-cover';
                       video.parentElement?.appendChild(img);
@@ -209,7 +209,7 @@ export default function HeroSection() {
                 ) : (
                   <img
                     src={(() => {
-                      const fallbackUrl = '/assets/Home  bg image.png';
+                      const fallbackUrl = '/assets/Image (6).png';
                       const mediaUrl = currentContent.media.url;
                       // Check if media URL is valid, otherwise use fallback immediately
                       if (!mediaUrl || !mediaUrl.startsWith('http') || mediaUrl.includes('undefined') || mediaUrl.includes('null')) {
@@ -223,8 +223,8 @@ export default function HeroSection() {
                     onError={(e) => {
                       // If image fails to load, use fallback
                       const target = e.currentTarget;
-                      if (!target.src.includes('/assets/Home  bg image.png')) {
-                        target.src = '/assets/Home  bg image.png';
+                      if (!target.src.includes('/assets/Image (6).png') && !target.src.includes('/assets/depositphotos_153537908-stock-photo-arab-man-drink-coffee-in.jpg')) {
+                        target.src = '/assets/Image (6).png';
                       }
                     }}
                   />
