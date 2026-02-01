@@ -31,6 +31,7 @@ export interface StrapiSingleResponse<T> {
 }
 
 const transformService = (item: any): Service => {
+  // Strapi v5 returns data directly without attributes wrapper
   const data = item.attributes || item;
   
   let subsections: any[] | undefined = undefined;
@@ -48,10 +49,28 @@ const transformService = (item: any): Service => {
     }
   }
   
+  // Handle image structure for Strapi v5
+  let imageUrl = "";
+  let imageAlt = "";
+  
+  if (data.image) {
+    const imageData = data.image.data || data.image;
+    if (imageData) {
+      const imageAttrs = imageData.attributes || imageData;
+      imageUrl = imageAttrs.url || imageAttrs.formats?.large?.url || imageAttrs.formats?.medium?.url || imageAttrs.formats?.small?.url || "";
+      imageAlt = imageAttrs.alternativeText || imageAttrs.caption || "";
+      
+      // Add base URL if it's a relative path
+      if (imageUrl && !imageUrl.startsWith('http')) {
+        imageUrl = `${API_BASE_URL}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+      }
+    }
+  }
+  
   return {
-    id: item.id,
-    slug: data.slug,
-    title: data.title,
+    id: item.id || item.documentId || data.id,
+    slug: data.slug || item.slug || "",
+    title: data.title || "",
     description: data.description || "",
     content: typeof data.content === 'string' && data.content.startsWith('{') 
       ? (() => {
@@ -63,14 +82,10 @@ const transformService = (item: any): Service => {
           }
         })()
       : data.content || "",
-    image: data.image?.data || data.image
-      ? {
-          url: data.image?.data?.attributes?.url 
-            ? `${API_BASE_URL}${data.image.data.attributes.url}`
-            : data.image?.url || data.image?.attributes?.url || "",
-          alt: data.image?.data?.attributes?.alternativeText || data.image?.alternativeText || "",
-        }
-      : undefined,
+    image: imageUrl ? {
+      url: imageUrl,
+      alt: imageAlt,
+    } : undefined,
     subsections: subsections ? subsections.map((sub: any) => ({
       title: sub.title || sub.attributes?.title || "",
       description: sub.description || sub.attributes?.description || "",
@@ -228,22 +243,36 @@ export const strapiApi = {
   },
 
   async getServiceBySlug(slug: string, locale: string = "en") {
-    const params: any = {
-      "filters[slug][$eq]": slug,
-      populate: "*",
-    };
-    
-    if (locale) {
-      params.locale = locale;
-    }
-    
-    const response = await api.get<any>("/services", { params });
-    const strapiData = response.data?.data || response.data || [];
-    
-    if (!Array.isArray(strapiData) || strapiData.length === 0) {
+    try {
+      const params: any = {
+        "filters[slug][$eq]": slug,
+        populate: "*",
+      };
+      
+      // Only add locale if it's provided and not empty
+      if (locale && locale.trim() !== '') {
+        params.locale = locale;
+      }
+      
+      const response = await api.get<any>("/services", { params });
+      const strapiData = response.data?.data || response.data || [];
+      
+      if (!Array.isArray(strapiData) || strapiData.length === 0) {
+        return null;
+      }
+      
+      const service = transformService(strapiData[0]);
+      return service;
+    } catch (error: unknown) {
+      if (process.env.NODE_ENV === "development") {
+        const axiosError = error as { response?: { data?: unknown }; message?: string };
+        console.error("Error fetching service by slug:", slug, error);
+        console.error("Error response:", axiosError.response?.data);
+        console.error("Error message:", axiosError.message);
+      }
+      // Return null instead of throwing to allow page to handle 404
       return null;
     }
-    return transformService(strapiData[0]);
   },
 
   async searchServices(query: string, locale: string = "en", page: number = 1, pageSize: number = 10) {

@@ -48,7 +48,7 @@ const httpModule = useHttps ? https : http;
 console.log(`🔗 Using host: ${HOST}`);
 // API Token - get from Strapi admin: Settings > API Tokens
 // Or set environment variable: STRAPI_API_TOKEN=your_token_here
-const API_TOKEN = process.env.STRAPI_API_TOKEN || 'bc93d00345b3175af36c41564fc069debad4ab864f8ac74a1f68cce411283ad524653819af5293439eba0968daa79a67154a48592f1924653a9cd917c8d1694d08f172890a3aac7335707ce94c2e729881477ca536f246f81d4c6bd0f97ccec7c4a1b14b2f21736c91fec945a48709421a7f651d8d34ead39ef21f60890ea989';
+const API_TOKEN = process.env.STRAPI_API_TOKEN || 'e5bd95d1b27c948649e3a315dbc0344c9ed8274b4025f5b193523eb908ac0aa2a64ad1e42c167a29686d308cefcf2d22bafbd3b9f3caa49b2ec54caba951e2b01e9af306ba708aa140cc12bae02ca6cc07cdac229b66da856582ce2f370e916c399cf4dd5a214e5bac1865d410c8bb1b7071df0605ad736a26b8525c515ed43c';
 
 if (!API_TOKEN) {
   console.error('❌ Error: API token is required!');
@@ -353,9 +353,28 @@ async function uploadImage(imagePath, alt = '') {
     }
 
     // Read local file
-    const fullPath = path.isAbsolute(imagePath) 
-      ? imagePath 
-      : path.join(__dirname, '../../..', imagePath);
+    let fullPath;
+    if (path.isAbsolute(imagePath)) {
+      fullPath = imagePath;
+    } else {
+      // Script runs from strapi-backend/, so we need to go up one level to project root
+      const projectRoot = path.join(__dirname, '../..'); // Go up from strapi-backend/scripts/ to project root
+      const fileName = path.basename(imagePath);
+      
+      // Try multiple possible paths
+      const possiblePaths = [
+        path.join(projectRoot, imagePath), // From project root: public/assets/...
+        path.join(projectRoot, 'public', 'assets', fileName), // Direct path to assets
+        path.join(process.cwd(), imagePath), // From current working directory
+        path.join(process.cwd(), '..', imagePath), // One level up from strapi-backend
+      ];
+      
+      fullPath = possiblePaths.find(p => fs.existsSync(p));
+      
+      if (!fullPath) {
+        fullPath = possiblePaths[0]; // Use first as default for error message
+      }
+    }
     
     if (!fs.existsSync(fullPath)) {
       reject(new Error(`Image file not found: ${fullPath}`));
@@ -483,7 +502,25 @@ function uploadImageBuffer(buffer, fileName, alt = '') {
   });
 }
 
+async function getExistingService(slug, locale) {
+  try {
+    const searchSlug = `${slug}${locale === 'ar' ? '-ar' : ''}`;
+    const response = await makeRequest(`${API_URL}/services?filters[slug][$eq]=${searchSlug}`, 'GET');
+    const services = response.data || [];
+    return services.length > 0 ? services[0] : null;
+  } catch (error) {
+    return null;
+  }
+}
+
 async function createService(service, locale) {
+  // Check if service already exists
+  const existing = await getExistingService(service.slug, locale);
+  if (existing) {
+    console.log(`⏭️  Service ${service.slug} (${locale}) already exists, skipping...`);
+    return null;
+  }
+  
   // For Strapi v5, create separate entries for each locale
   const payload = {
     data: {
@@ -497,11 +534,6 @@ async function createService(service, locale) {
     const response = await makeRequest(`${API_URL}/services`, 'POST', payload);
     return response;
   } catch (error) {
-    // If service already exists (400 error with "must be unique"), skip it
-    if (error.message.includes('400') && error.message.includes('unique')) {
-      console.log(`⏭️  Service ${service.slug} (${locale}) already exists, skipping...`);
-      return null;
-    }
     console.error(`Error creating service ${service.slug} (${locale}):`, error.message);
     return null;
   }
@@ -519,7 +551,8 @@ async function getExistingTeamMembers() {
 
 async function findTeamMemberByName(existingMembers, name) {
   return existingMembers.find(member => {
-    const memberName = member.attributes?.name || member.name || '';
+    // Strapi v5 returns data directly without attributes wrapper
+    const memberName = member.name || member.attributes?.name || (member.data && member.data.name) || '';
     return memberName === name;
   });
 }
@@ -612,12 +645,17 @@ async function createTeamMember(member, imageIndex = null, images = [], existing
   
   // If member exists, update it instead of creating
   if (existingMember) {
-    const id = existingMember.id;
+    // Strapi v5 uses documentId for updates, fallback to id
+    const id = existingMember.documentId || existingMember.id || existingMember.attributes?.id || (existingMember.data && (existingMember.data.documentId || existingMember.data.id));
+    if (!id) {
+      console.error(`Error: No ID found for team member ${member.name}`);
+      return null;
+    }
     try {
       const response = await makeRequest(`${API_URL}/team-members/${id}`, 'PUT', payload);
       return { ...response, updated: true };
     } catch (error) {
-      console.error(`Error updating team member ${member.name}:`, error.message);
+      console.error(`Error updating team member ${member.name} (ID: ${id}):`, error.message);
       return null;
     }
   }
@@ -649,7 +687,8 @@ async function getExistingClients() {
 
 async function findClientByName(existingClients, name) {
   return existingClients.find(client => {
-    const clientName = client.attributes?.name || client.name || '';
+    // Strapi v5 returns data directly without attributes wrapper
+    const clientName = client.name || client.attributes?.name || (client.data && client.data.name) || '';
     return clientName === name;
   });
 }
@@ -722,17 +761,19 @@ async function createClient(client, imageIndex = null, images = [], existingClie
   
   // If client exists, update it with image
   if (existingClient) {
-    const id = existingClient.id || existingClient.attributes?.id;
-    if (id) {
-      try {
-        const response = await makeRequest(`${API_URL}/clients/${id}`, 'PUT', payload);
-        return { ...response, updated: true };
-      } catch (error) {
-        console.error(`Error updating client ${client.name}:`, error.message);
-        return null;
-      }
+    // Strapi v5 uses documentId for updates, fallback to id
+    const id = existingClient.documentId || existingClient.id || existingClient.attributes?.id || (existingClient.data && (existingClient.data.documentId || existingClient.data.id));
+    if (!id) {
+      console.error(`Error: No ID found for client ${client.name}`);
+      return null;
     }
-    return null;
+    try {
+      const response = await makeRequest(`${API_URL}/clients/${id}`, 'PUT', payload);
+      return { ...response, updated: true };
+    } catch (error) {
+      console.error(`Error updating client ${client.name} (ID: ${id}):`, error.message);
+      return null;
+    }
   }
   
   try {
@@ -761,7 +802,8 @@ async function getExistingHeroPages() {
 
 async function findHeroPageByTitle(existingPages, title) {
   return existingPages.find(page => {
-    const pageTitle = page.attributes?.title || page.title || '';
+    // Strapi v5 returns data directly without attributes wrapper
+    const pageTitle = page.title || page.attributes?.title || (page.data && page.data.title) || '';
     return pageTitle === title;
   });
 }
@@ -836,17 +878,19 @@ async function createHeroPage(page, locale, imageIndex = null, images = [], exis
   
   // If page exists, update it with media
   if (existingPage) {
-    const id = existingPage.id || existingPage.attributes?.id;
-    if (id) {
-      try {
-        const response = await makeRequest(`${API_URL}/pages/${id}`, 'PUT', payload);
-        return { ...response, updated: true };
-      } catch (error) {
-        console.error(`Error updating hero page (${locale}):`, error.message);
-        return null;
-      }
+    // Strapi v5 uses documentId for updates, fallback to id
+    const id = existingPage.documentId || existingPage.id || existingPage.attributes?.id || (existingPage.data && (existingPage.data.documentId || existingPage.data.id));
+    if (!id) {
+      console.error(`Error: No ID found for hero page (${locale})`);
+      return null;
     }
-    return null;
+    try {
+      const response = await makeRequest(`${API_URL}/pages/${id}`, 'PUT', payload);
+      return { ...response, updated: true };
+    } catch (error) {
+      console.error(`Error updating hero page (${locale}) (ID: ${id}):`, error.message);
+      return null;
+    }
   }
   
   try {
@@ -910,14 +954,14 @@ async function seedData() {
   // First, upload images if needed
   const uploadedImages = await seedImages();
 
-  // Create services (both English and Arabic versions)
-  console.log('📋 Creating services...');
+  // Create services (both English and Arabic versions) - only if they don't exist
+  console.log('📋 Processing services...');
   for (const service of services) {
-    // Create English version
+    // Check and create English version
     const enResult = await createService(service, 'en');
     if (enResult) console.log(`✅ Created service: ${service.title.en}`);
     
-    // Create Arabic version
+    // Check and create Arabic version
     const arResult = await createService(service, 'ar');
     if (arResult) console.log(`✅ Created service: ${service.title.ar}`);
     
@@ -946,7 +990,7 @@ async function seedData() {
   const updatedExistingMembers = await getExistingTeamMembers();
   console.log(`📋 After cleanup: ${updatedExistingMembers.length} team member(s) remaining`);
   
-  // Create or update team members with images assigned in order
+  // Update existing team members with images (don't create new ones)
   let imageIndex = 0;
   for (const member of teamMembers) {
     const existingMember = await findTeamMemberByName(updatedExistingMembers, member.name);
@@ -959,12 +1003,8 @@ async function seedData() {
         console.log(`🔄 Updated team member: ${member.name}${imageInfo}`);
       }
     } else {
-      // Create new member
-      const result = await createTeamMember(member, imageIndex, allImages);
-      if (result) {
-        const imageInfo = allImages[imageIndex] ? ` (image ${imageIndex + 1})` : '';
-        console.log(`✅ Created team member: ${member.name}${imageInfo}`);
-      }
+      // Skip creating new members on second run
+      console.log(`⏭️  Team member ${member.name} not found, skipping (images only mode)...`);
     }
     
     imageIndex = (imageIndex + 1) % Math.max(allImages.length, 1); // Cycle through images
@@ -986,17 +1026,18 @@ async function seedData() {
   // Get updated list after deletion
   const updatedExistingClients = await getExistingClients();
   
-  // Create or update clients with images
+  // Update existing clients with images (don't create new ones)
   let clientImageIndex = 0;
   for (const client of clients) {
     const existingClient = await findClientByName(updatedExistingClients, client.name);
-    const result = await createClient(client, clientImageIndex, allImages, existingClient);
-    if (result) {
-      const imageInfo = allImages[clientImageIndex] ? ` (image ${clientImageIndex + 1})` : '';
-      const action = result.updated ? 'Updated' : 'Created';
-      console.log(`✅ ${action} client: ${client.name}${imageInfo}`);
-    } else if (existingClient) {
-      console.log(`⏭️  Client ${client.name} already exists, skipping...`);
+    if (existingClient) {
+      const result = await createClient(client, clientImageIndex, allImages, existingClient);
+      if (result) {
+        const imageInfo = allImages[clientImageIndex] ? ` (image ${clientImageIndex + 1})` : '';
+        console.log(`🔄 Updated client: ${client.name}${imageInfo}`);
+      }
+    } else {
+      console.log(`⏭️  Client ${client.name} not found, skipping (images only mode)...`);
     }
     clientImageIndex = (clientImageIndex + 1) % Math.max(allImages.length, 1);
     await new Promise(resolve => setTimeout(resolve, 200));
@@ -1017,29 +1058,31 @@ async function seedData() {
   // Get updated list after deletion
   const updatedExistingPages = await getExistingHeroPages();
   
-  // Create or update pages with images
+  // Update existing pages with images (don't create new ones)
   let pageImageIndex = 0;
   for (const page of heroPages) {
     // Check English version
     const existingEnPage = await findHeroPageByTitle(updatedExistingPages, page.title.en);
-    const enResult = await createHeroPage(page, 'en', pageImageIndex, allImages, existingEnPage);
-    if (enResult) {
-      const imageInfo = allImages[pageImageIndex] ? ` (image ${pageImageIndex + 1})` : '';
-      const action = enResult.updated ? 'Updated' : 'Created';
-      console.log(`✅ ${action} hero page: ${page.title.en}${imageInfo}`);
-    } else if (existingEnPage) {
-      console.log(`⏭️  Hero page "${page.title.en}" already exists, skipping...`);
+    if (existingEnPage) {
+      const enResult = await createHeroPage(page, 'en', pageImageIndex, allImages, existingEnPage);
+      if (enResult) {
+        const imageInfo = allImages[pageImageIndex] ? ` (image ${pageImageIndex + 1})` : '';
+        console.log(`🔄 Updated hero page: ${page.title.en}${imageInfo}`);
+      }
+    } else {
+      console.log(`⏭️  Hero page "${page.title.en}" not found, skipping (images only mode)...`);
     }
     
     // Check Arabic version (use same image)
     const existingArPage = await findHeroPageByTitle(updatedExistingPages, page.title.ar);
-    const arResult = await createHeroPage(page, 'ar', pageImageIndex, allImages, existingArPage);
-    if (arResult) {
-      const imageInfo = allImages[pageImageIndex] ? ` (image ${pageImageIndex + 1})` : '';
-      const action = arResult.updated ? 'Updated' : 'Created';
-      console.log(`✅ ${action} hero page: ${page.title.ar}${imageInfo}`);
-    } else if (existingArPage) {
-      console.log(`⏭️  Hero page "${page.title.ar}" already exists, skipping...`);
+    if (existingArPage) {
+      const arResult = await createHeroPage(page, 'ar', pageImageIndex, allImages, existingArPage);
+      if (arResult) {
+        const imageInfo = allImages[pageImageIndex] ? ` (image ${pageImageIndex + 1})` : '';
+        console.log(`🔄 Updated hero page: ${page.title.ar}${imageInfo}`);
+      }
+    } else {
+      console.log(`⏭️  Hero page "${page.title.ar}" not found, skipping (images only mode)...`);
     }
     
     pageImageIndex = (pageImageIndex + 1) % Math.max(allImages.length, 1);

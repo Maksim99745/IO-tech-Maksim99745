@@ -6,18 +6,38 @@ import HeaderNavigation from "@/components/HeaderNavigation";
 import Footer from "@/components/Footer";
 import ServiceDetailClient from "./ServiceDetailClient";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface PageProps {
-  params: {
+  params: Promise<{
+    slug: string;
+  }> | {
     slug: string;
   };
-  searchParams: {
+  searchParams: Promise<{
+    locale?: string;
+  }> | {
     locale?: string;
   };
 }
 
 async function getService(slug: string, locale: string = "en"): Promise<Service | null> {
   try {
-    return await strapiApi.getServiceBySlug(slug, locale);
+    // Try to get service with locale-specific slug first
+    let service = await strapiApi.getServiceBySlug(slug, locale);
+    
+    // If not found and locale is 'ar', try with '-ar' suffix
+    if (!service && locale === 'ar') {
+      service = await strapiApi.getServiceBySlug(`${slug}-ar`, locale);
+    }
+    
+    // If still not found, try without locale filter
+    if (!service) {
+      service = await strapiApi.getServiceBySlug(slug, '');
+    }
+    
+    return service;
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
       console.error("Error fetching service:", error);
@@ -27,8 +47,10 @@ async function getService(slug: string, locale: string = "en"): Promise<Service 
 }
 
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
-  const locale = searchParams.locale || "en";
-  const service = await getService(params.slug, locale);
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const locale = resolvedSearchParams.locale || "en";
+  const service = await getService(resolvedParams.slug, locale);
 
   if (!service) {
     return {
@@ -47,29 +69,28 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   };
 }
 
-export async function generateStaticParams() {
-  try {
-    const result = await strapiApi.getServices("en", 1, 100);
-    return result.data.map((service) => ({
-      slug: service.slug,
-    }));
-  } catch (error) {
-    if (process.env.NODE_ENV === "development") {
-      console.error("Error generating static params:", error);
-    }
-    return [];
-  }
-}
+// Removed generateStaticParams - using dynamic rendering instead
 
 export default async function ServiceDetailPage({ params, searchParams }: PageProps) {
-  const locale = searchParams.locale || "en";
-  const service = await getService(params.slug, locale);
+  try {
+    const resolvedParams = await params;
+    const resolvedSearchParams = await searchParams;
+    const locale = resolvedSearchParams.locale || "en";
+    // Decode slug in case it's URL encoded
+    const decodedSlug = decodeURIComponent(resolvedParams.slug);
+    const service = await getService(decodedSlug, locale);
 
-  if (!service) {
+    if (!service) {
+      notFound();
+    }
+
+    return (
+      <ServiceDetailClient service={service} locale={locale} />
+    );
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error in ServiceDetailPage:", error);
+    }
     notFound();
   }
-
-  return (
-    <ServiceDetailClient service={service} locale={locale} />
-  );
 }
