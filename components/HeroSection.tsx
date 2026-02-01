@@ -177,57 +177,25 @@ export default function HeroSection() {
               </div>
 
               <div className="relative w-[374px] h-[374px] min-w-[374px] bg-[#643F2E] rounded-lg overflow-hidden ml-auto mt-[235px] flex-shrink-0">
-                {currentContent.media.url ? (
-                  currentContent.media.type === 'video' ? (
-                    <video
-                      ref={(el) => {
-                        if (el) videoRefs.current[currentIndex] = el;
-                      }}
-                      src={currentContent.media.url}
-                      className="w-full h-full object-cover"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      onError={(e) => {
-                        if (process.env.NODE_ENV === "development") {
-                          console.error("Error loading video:", currentContent.media.url, e);
-                        }
-                      }}
-                    />
-                  ) : (
-                    <img
-                      src={currentContent.media.url}
-                      alt={currentContent.media.alt || currentContent.title}
-                      className="w-full h-full object-cover"
-                      style={{ minWidth: '374px', minHeight: '374px' }}
-                      onLoad={(e) => {
-                        const img = e.currentTarget;
-                        if (process.env.NODE_ENV === "development" && img.naturalWidth < 374) {
-                          console.warn(`Image width is ${img.naturalWidth}px, minimum required is 374px. URL: ${currentContent.media.url}`);
-                        }
-                      }}
-                      onError={(e) => {
-                        if (process.env.NODE_ENV === "development") {
-                          console.error("Error loading image:", currentContent.media.url, e);
-                        }
-                        const img = e.currentTarget;
-                        img.style.display = 'none';
-                        const errorDiv = document.createElement('div');
-                        errorDiv.className = 'w-full h-full flex items-center justify-center bg-red-900/20 text-white text-xs p-4';
-                        errorDiv.textContent = 'Image loading error';
-                        img.parentElement?.appendChild(errorDiv);
-                      }}
-                    />
-                  )
+                {currentContent.media.type === 'video' && currentContent.media.url ? (
+                  <video
+                    ref={(el) => {
+                      if (el) videoRefs.current[currentIndex] = el;
+                    }}
+                    src={currentContent.media.url}
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-[#643F2E]">
-                    <div className="text-center text-white/50 text-sm px-4">
-                      <p className="mb-2">Image not loaded</p>
-                      <p className="text-xs">Add media file in Strapi CMS</p>
-                      <p className="text-xs mt-1">Minimum width: 374px</p>
-                    </div>
-                  </div>
+                  <img
+                    src={currentContent.media.url || '/assets/Home  bg image.png'}
+                    alt={currentContent.media.alt || currentContent.title}
+                    className="w-full h-full object-cover"
+                    style={{ minWidth: '374px', minHeight: '374px' }}
+                  />
                 )}
               </div>
             </div>

@@ -7,3 +7,29 @@ export const LANGUAGES = {
 } as const;
 
 export const DEFAULT_LANGUAGE = LANGUAGES.EN;
+
+// Fallback images from local assets (if Strapi media is unavailable)
+export const FALLBACK_IMAGES = {
+  team: [
+    '/assets/Image (6).png',
+    '/assets/depositphotos_153537908-stock-photo-arab-man-drink-coffee-in.jpg',
+    '/assets/Image (6).png',
+    '/assets/depositphotos_153537908-stock-photo-arab-man-drink-coffee-in.jpg',
+    '/assets/Image (6).png',
+  ],
+  client: [
+    '/assets/Image (6).png',
+    '/assets/depositphotos_153537908-stock-photo-arab-man-drink-coffee-in.jpg',
+    '/assets/Image (6).png',
+    '/assets/depositphotos_153537908-stock-photo-arab-man-drink-coffee-in.jpg',
+    '/assets/Image (6).png',
+  ],
+  hero: [
+    '/assets/Home  bg image.png',
+    '/assets/Home  bg image.png',
+    '/assets/Home  bg image.png',
+    '/assets/Home  bg image.png',
+    '/assets/Home  bg image.png',
+  ],
+  service: '/assets/Home  bg image.png',
+};

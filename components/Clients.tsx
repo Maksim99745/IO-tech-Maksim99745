@@ -68,15 +68,18 @@ export default function Clients() {
         </div>
 
         <div className="absolute bg-[#643F2E] overflow-hidden w-[374px] h-[374px] left-[122px] top-[312px]">
-          {currentClient.image?.url ? (
-            <img
-              src={currentClient.image.url}
-              alt={currentClient.image.alt || currentClient.name || "Client"}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-[#643F2E]" />
-          )}
+          {(() => {
+            const fallbackImages = ['/assets/Image (6).png', '/assets/depositphotos_153537908-stock-photo-arab-man-drink-coffee-in.jpg'];
+            const imageUrl = currentClient.image?.url || fallbackImages[currentIndex % fallbackImages.length];
+            
+            return (
+              <img
+                src={imageUrl}
+                alt={currentClient.image?.alt || currentClient.name || "Client"}
+                className="w-full h-full object-cover"
+              />
+            );
+          })()}
         </div>
 
         {currentClient.testimonial && (

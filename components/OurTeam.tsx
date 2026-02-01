@@ -112,19 +112,20 @@ export default function OurTeam() {
                 ))}
               </>
             ) : (
-              currentMembers.map((member) => (
-              <div key={member.id} className="flex flex-col items-center gap-6">
-                <div className="relative w-[270px] h-[174px] bg-[#643F2E] overflow-hidden">
-                  {member.image?.url ? (
+              currentMembers.map((member, index) => {
+                // Use Strapi image or fallback to local asset
+                const fallbackImages = ['/assets/Image (6).png', '/assets/depositphotos_153537908-stock-photo-arab-man-drink-coffee-in.jpg'];
+                const imageUrl = member.image?.url || fallbackImages[index % fallbackImages.length];
+                
+                return (
+                <div key={member.id} className="flex flex-col items-center gap-6">
+                  <div className="relative w-[270px] h-[174px] bg-[#643F2E] overflow-hidden">
                     <img
-                      src={member.image.url}
-                      alt={member.image.alt || member.name}
+                      src={imageUrl}
+                      alt={member.image?.alt || member.name}
                       className="w-full h-full object-cover"
                     />
-                  ) : (
-                    <div className="w-full h-full bg-[#643F2E]" />
-                  )}
-                </div>
+                  </div>
 
                 <div className="text-center w-full">
                   <h3 className="text-[22px] font-medium text-[#4B2615] mb-2 leading-[32px] text-center">
