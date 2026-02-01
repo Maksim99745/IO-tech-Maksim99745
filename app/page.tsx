@@ -7,6 +7,9 @@ import Clients from "@/components/Clients";
 import Footer from "@/components/Footer";
 import Image from "next/image";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "IO Tech | Home",
   description: "IO Tech - Your trusted technology partner",
