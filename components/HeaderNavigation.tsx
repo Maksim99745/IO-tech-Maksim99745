@@ -19,12 +19,6 @@ export default function HeaderNavigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [services, setServices] = useState<Service[]>([]);
   const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  // Prevent hydration mismatch by only rendering after mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -73,9 +67,8 @@ export default function HeaderNavigation() {
             <Link
               href="/"
               className="hover:text-brown-light transition-colors"
-              suppressHydrationWarning
             >
-              {mounted ? t("nav.home") : "Home"}
+              {t("nav.home")}
             </Link>
 
             <Link
@@ -279,9 +272,8 @@ export default function HeaderNavigation() {
               href="/"
               className="block py-2 hover:text-brown-light transition-colors"
               onClick={() => setIsMobileMenuOpen(false)}
-              suppressHydrationWarning
             >
-              {mounted ? t("nav.home") : "Home"}
+              {t("nav.home")}
             </Link>
             <Link
               href="/about"

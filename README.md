@@ -19,14 +19,9 @@ This will automatically:
 1. ✅ Install all dependencies (Frontend + Strapi)
 2. ✅ Start Strapi server
 3. ✅ Wait for Strapi to be ready
-4. ✅ Start Next.js application
-5. ✅ Open browser automatically
-
-**Note:** Data should already be on your deployed server. If you need to seed data locally, run:
-```bash
-cd strapi-backend
-node scripts/seed-data.js
-```
+4. ✅ Seed database with initial data
+5. ✅ Start Next.js application
+6. ✅ Open browser automatically
 
 **That's it!** No configuration needed. Everything is pre-configured.
 
@@ -105,15 +100,3 @@ All API tokens and configuration are pre-configured in the code:
 - All data is automatically seeded on first run
 - API tokens are embedded in the code for easy setup
 - No login required - everything works out of the box
-
-## 🚀 Deployment
-
-**Live URLs:**
-- **Frontend (Next.js):** https://io-tech-maksim99745-1.onrender.com
-- **Strapi Admin:** https://io-tech-maksim99745.onrender.com/admin
-- **Strapi API:** https://io-tech-maksim99745.onrender.com/api
-
-**Deployment platforms:**
-- **Next.js** → Render
-- **Strapi** → Render
-- **Auto-deploy** → GitHub Actions (on push to main)

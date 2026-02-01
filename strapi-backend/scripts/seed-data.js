@@ -11,8 +11,7 @@
  * 4. Set STRAPI_API_TOKEN environment variable or update the token below
  */
 
-const http = require('http');
-const https = require('https');
+const https = require('http');
 const fs = require('fs');
 
 // Auto-detect Windows host IP for WSL compatibility
@@ -36,11 +35,10 @@ function getWindowsHost() {
   return 'localhost';
 }
 
-// Support both local and production Strapi URLs
-const STRAPI_URL = process.env.STRAPI_URL || `http://${getWindowsHost()}:1337`;
-const API_URL = `${STRAPI_URL}/api`;
+const HOST = getWindowsHost();
+const API_URL = `http://${HOST}:1337/api`;
 
-console.log(`🔗 Using Strapi URL: ${STRAPI_URL}`);
+console.log(`🔗 Using host: ${HOST}`);
 // API Token - get from Strapi admin: Settings > API Tokens
 // Or set environment variable: STRAPI_API_TOKEN=your_token_here
 const API_TOKEN = process.env.STRAPI_API_TOKEN || '6fbdd1dd107e55abfca05fc9f746f04fd8e2739f1c7376032a0ac4703654257db16082ae3937da9b658395836017ed15e64c55c4b18f86c455fbbe3a89e203fbfc858ef5d9de2afa65cf6c9192c84dc6f0f248345791dc4cc9f144d392962e175ceaf5524c9e861dfb1ddb4c5a1899e63ce75f2f0dd14045dc0fe76d038e0732';
@@ -278,12 +276,9 @@ const heroPages = [
 function makeRequest(url, method, data) {
   return new Promise((resolve, reject) => {
     const urlObj = new URL(url);
-    const isHttps = urlObj.protocol === 'https:';
-    const requestModule = isHttps ? https : http;
-    
     const options = {
       hostname: urlObj.hostname,
-      port: urlObj.port || (isHttps ? 443 : 80),
+      port: urlObj.port,
       path: urlObj.pathname + urlObj.search,
       method: method,
       headers: {
@@ -292,7 +287,7 @@ function makeRequest(url, method, data) {
       }
     };
 
-    const req = requestModule.request(options, (res) => {
+    const req = https.request(options, (res) => {
       let body = '';
       res.on('data', (chunk) => {
         body += chunk;
@@ -673,42 +668,9 @@ async function createHeroPage(page, locale, existingPage = null) {
   }
 }
 
-async function checkIfDataExists() {
-  try {
-    // Check if we already have data by checking services count
-    const servicesResponse = await makeRequest(`${API_URL}/services?pagination[pageSize]=1`, 'GET');
-    const servicesCount = servicesResponse.data?.length || 0;
-    
-    // Check team members
-    const teamResponse = await makeRequest(`${API_URL}/team-members?pagination[pageSize]=1`, 'GET');
-    const teamCount = teamResponse.data?.length || 0;
-    
-    // If we have both services and team members, data already exists
-    if (servicesCount > 0 && teamCount > 0) {
-      return true;
-    }
-    return false;
-  } catch (error) {
-    // If check fails, assume no data exists
-    return false;
-  }
-}
-
 async function seedData() {
   console.log('🌱 Starting data seeding...\n');
   console.log(`📡 Connecting to: ${API_URL}\n`);
-  
-  // Check if data already exists
-  console.log('🔍 Checking if data already exists...');
-  const dataExists = await checkIfDataExists();
-  
-  if (dataExists) {
-    console.log('✅ Data already exists in database. Skipping seed.\n');
-    console.log('💡 To re-seed data, delete existing entries from Strapi Admin panel first.');
-    return;
-  }
-  
-  console.log('📝 No existing data found. Proceeding with seed...\n');
 
   // Create services (both English and Arabic versions)
   console.log('📋 Creating services...');

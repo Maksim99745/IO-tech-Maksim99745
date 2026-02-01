@@ -49,6 +49,10 @@ export default function OurTeam() {
     setCurrentIndex((prev) => (prev - 1 + totalPages) % totalPages);
   };
 
+  if (teamMembers.length === 0 && !loading) {
+    return null;
+  }
+
   return (
     <section id="team" className="bg-[#F3F3F3] w-full relative z-10 flex justify-center items-center h-[746px] min-h-[746px]">
       <div className="w-full max-w-[1400px] h-full flex flex-col justify-center items-center md:px-24 relative">
@@ -91,12 +95,6 @@ export default function OurTeam() {
                   </div>
                 ))}
               </>
-            ) : teamMembers.length === 0 ? (
-              <div className="col-span-3 flex flex-col items-center justify-center py-12">
-                <p className="text-[18px] text-[#1E1E1E] opacity-70 text-center">
-                  {t("team.noMembers") || "Team members will be displayed here"}
-                </p>
-              </div>
             ) : (
               currentMembers.map((member) => (
               <div key={member.id} className="flex flex-col items-center gap-6">

@@ -13,14 +13,6 @@ const nextConfig = {
       },
     ],
   },
-  // Exclude strapi-backend from Next.js build
-  webpack: (config) => {
-    config.watchOptions = {
-      ...config.watchOptions,
-      ignored: ['**/strapi-backend/**'],
-    };
-    return config;
-  },
 }
 
 module.exports = nextConfig

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@/store/hooks";
 import { Service } from "@/types";
@@ -8,58 +8,22 @@ import Image from "next/image";
 import Link from "next/link";
 import HeaderNavigation from "@/components/HeaderNavigation";
 import Footer from "@/components/Footer";
-import { strapiApi } from "@/lib/api/strapi";
 
 interface ServiceDetailClientProps {
   service: Service;
   locale?: string;
 }
 
-export default function ServiceDetailClient({ service: initialService, locale: initialLocale }: ServiceDetailClientProps) {
-  const { i18n, t } = useTranslation();
+export default function ServiceDetailClient({ service, locale }: ServiceDetailClientProps) {
+  const { i18n } = useTranslation();
   const { currentLanguage } = useAppSelector((state) => state.language);
-  const [service, setService] = useState<Service>(initialService);
-  const [loading, setLoading] = useState(false);
-
-  // Get current locale
-  const currentLocale = currentLanguage || i18n.language || "en";
-
-  // Reload service data when language changes
-  useEffect(() => {
-    const loadService = async () => {
-      // Always reload when locale changes to ensure correct language
-      if (currentLocale && initialService.slug) {
-        try {
-          setLoading(true);
-          // Try to get service with current locale
-          // For Arabic, slug might have -ar suffix, but filterByLocale will handle it
-          const newService = await strapiApi.getServiceBySlug(initialService.slug, currentLocale);
-          if (newService) {
-            setService(newService);
-          } else if (process.env.NODE_ENV === "development") {
-            console.warn(`Service not found for slug: ${initialService.slug}, locale: ${currentLocale}`);
-          }
-        } catch (error) {
-          if (process.env.NODE_ENV === "development") {
-            console.error("Error reloading service:", error);
-          }
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    // Only reload if locale actually changed
-    if (currentLocale !== initialLocale) {
-      loadService();
-    }
-  }, [currentLocale, initialService.slug, initialLocale]);
 
   useEffect(() => {
-    if (i18n.language !== currentLocale) {
-      i18n.changeLanguage(currentLocale);
+    const lang = locale || currentLanguage || i18n.language || "en";
+    if (i18n.language !== lang) {
+      i18n.changeLanguage(lang);
     }
-  }, [currentLocale, i18n]);
+  }, [locale, currentLanguage, i18n]);
 
   return (
     <>
@@ -164,7 +128,7 @@ export default function ServiceDetailClient({ service: initialService, locale: i
             <div className="mt-12 space-y-8 max-w-[1142px]">
               <div className="space-y-4">
                 <h2 className="text-[#4B2615] text-base font-bold leading-[26px] break-words max-w-[972px]">
-                  {t("service.generalConsultations.title")}
+                  General Legal Consultations
                 </h2>
                 <div className="flex pb-4">
                   <div className="flex flex-col items-center flex-shrink-0">
@@ -175,7 +139,7 @@ export default function ServiceDetailClient({ service: initialService, locale: i
                   </div>
                   <div className="flex-1 ml-[10px]">
                     <p className="text-[#1E1E1E] opacity-70 text-base font-normal leading-[26px] break-words max-w-[908.44px]">
-                      {t("service.generalConsultations.description")}
+                      At Law Firm, we provide comprehensive legal consultations covering all legal aspects that our clients may encounter in their daily lives or business activities. Our goal is to offer accurate legal advice based on a deep understanding of local and international laws.
                     </p>
                   </div>
                 </div>
@@ -183,7 +147,7 @@ export default function ServiceDetailClient({ service: initialService, locale: i
 
               <div className="space-y-4">
                 <h2 className="text-[#4B2615] text-base font-bold leading-[26px] break-words max-w-[972px]">
-                  {t("service.corporateConsultations.title")}
+                  Corporate Legal Consultations
                 </h2>
                 <div className="flex pb-4">
                   <div className="flex flex-col items-center flex-shrink-0">
@@ -194,13 +158,13 @@ export default function ServiceDetailClient({ service: initialService, locale: i
                   </div>
                   <div className="flex-1 ml-[10px]">
                     <p className="text-[#1E1E1E] opacity-70 text-base font-bold leading-[26px] break-words max-w-[908.44px] mb-4">
-                      {t("service.corporateConsultations.intro")}
+                      We at the Law Firm understand the importance of legal consultations for companies in building and enhancing their businesses. Our advisory services about:
                     </p>
                     <ul className="text-[#1E1E1E] space-y-2 opacity-70 text-base font-normal leading-[26px] break-words max-w-[908.44px]">
-                      <li>- {t("service.corporateConsultations.items.establishing")}</li>
-                      <li>- {t("service.corporateConsultations.items.contracts")}</li>
-                      <li>- {t("service.corporateConsultations.items.disputes")}</li>
-                      <li>- {t("service.corporateConsultations.items.compliance")}</li>
+                      <li>- Establishing and registering companies.</li>
+                      <li>- All kinds of contracts and agreements.</li>
+                      <li>- Commercial disputes.</li>
+                      <li>- Compliance with local and international laws and regulations.</li>
                     </ul>
                   </div>
                 </div>
@@ -208,7 +172,7 @@ export default function ServiceDetailClient({ service: initialService, locale: i
 
               <div className="space-y-4">
                 <h2 className="text-[#4B2615] text-base font-bold leading-[26px] break-words max-w-[972px]">
-                  {t("service.individualConsultations.title")}
+                  Individual Legal Consultations
                 </h2>
                 <div className="flex pb-4">
                   <div className="flex flex-col items-center flex-shrink-0">
@@ -219,13 +183,13 @@ export default function ServiceDetailClient({ service: initialService, locale: i
                   </div>
                   <div className="flex-1 ml-[10px]">
                     <p className="text-[#1E1E1E] opacity-70 text-base font-bold leading-[26px] break-words max-w-[908.44px] mb-4">
-                      {t("service.individualConsultations.intro")}
+                      Law Firm offers customized advisory services for individuals, including:
                     </p>
                     <ul className="text-[#1E1E1E] space-y-2 opacity-70 text-base font-normal leading-[26px] break-words max-w-[908.44px]">
-                      <li>- {t("service.individualConsultations.items.family")}</li>
-                      <li>- {t("service.individualConsultations.items.realEstate")}</li>
-                      <li>- {t("service.individualConsultations.items.employment")}</li>
-                      <li>- {t("service.individualConsultations.items.criminal")}</li>
+                      <li>- Family issues such as divorce, alimony, and custody.</li>
+                      <li>- Real estate matters like buying, selling, and renting properties.</li>
+                      <li>- Employment issues such as hiring and wrongful termination.</li>
+                      <li>- Criminal cases and defending personal rights.</li>
                     </ul>
                   </div>
                 </div>
@@ -233,7 +197,7 @@ export default function ServiceDetailClient({ service: initialService, locale: i
             </div>
 
             <div className="mt-12 text-[#1E1E1E] opacity-70 text-base font-normal leading-[26px] text-justify max-w-[1142px]">
-              {t("service.footer")}
+              At Law Firm, we aim to provide the best legal services to ensure your rights and offer effective legal solutions. Contact us today to receive professional and comprehensive legal consultation.
             </div>
           </div>
         </div>

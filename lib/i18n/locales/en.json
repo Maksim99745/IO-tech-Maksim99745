@@ -6,8 +6,7 @@
     "email": "Email",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success",
-    "back": "Back"
+    "success": "Success"
   },
   "nav": {
     "home": "Home",
@@ -28,7 +27,6 @@
   "team": {
     "title": "Our Team",
     "subtitle": "Meet our experienced legal professionals dedicated to providing exceptional service and protecting your rights",
-    "noMembers": "Team members will be displayed here",
     "roles": {
       "Legal Advisor": "Legal Advisor",
       "Senior Legal Advisor": "Senior Legal Advisor",
@@ -69,31 +67,6 @@
     "services": "Services"
   },
   "service": {
-    "back": "Back to Services",
-    "generalConsultations": {
-      "title": "General Legal Consultations",
-      "description": "At Law Firm, we provide comprehensive legal consultations covering all legal aspects that our clients may encounter in their daily lives or business activities. Our goal is to offer accurate legal advice based on a deep understanding of local and international laws."
-    },
-    "corporateConsultations": {
-      "title": "Corporate Legal Consultations",
-      "intro": "We at the Law Firm understand the importance of legal consultations for companies in building and enhancing their businesses. Our advisory services about:",
-      "items": {
-        "establishing": "Establishing and registering companies.",
-        "contracts": "All kinds of contracts and agreements.",
-        "disputes": "Commercial disputes.",
-        "compliance": "Compliance with local and international laws and regulations."
-      }
-    },
-    "individualConsultations": {
-      "title": "Individual Legal Consultations",
-      "intro": "Law Firm offers customized advisory services for individuals, including:",
-      "items": {
-        "family": "Family issues such as divorce, alimony, and custody.",
-        "realEstate": "Real estate matters like buying, selling, and renting properties.",
-        "employment": "Employment issues such as hiring and wrongful termination.",
-        "criminal": "Criminal cases and defending personal rights."
-      }
-    },
-    "footer": "At Law Firm, we aim to provide the best legal services to ensure your rights and offer effective legal solutions. Contact us today to receive professional and comprehensive legal consultation."
+    "back": "Back to Services"
   }
 }
