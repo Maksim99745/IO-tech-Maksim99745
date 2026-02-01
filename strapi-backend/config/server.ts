@@ -9,9 +9,12 @@ export default ({ env }) => {
     ? env.array('APP_KEYS') 
     : generateAppKeys();
 
+  // Render automatically sets PORT env variable
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : env.int('PORT', 10000);
+  
   return {
     host: env('HOST', '0.0.0.0'),
-    port: env.int('PORT', 10000),
+    port: port,
     app: {
       keys: defaultKeys,
     },
