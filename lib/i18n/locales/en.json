@@ -27,6 +27,7 @@
   "team": {
     "title": "Our Team",
     "subtitle": "Meet our experienced legal professionals dedicated to providing exceptional service and protecting your rights",
+    "noMembers": "No team members available at the moment.",
     "roles": {
       "Legal Advisor": "Legal Advisor",
       "Senior Legal Advisor": "Senior Legal Advisor",

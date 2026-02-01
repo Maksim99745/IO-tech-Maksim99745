@@ -50,7 +50,23 @@ export default function OurTeam() {
   };
 
   if (teamMembers.length === 0 && !loading) {
-    return null;
+    return (
+      <section id="team" className="bg-[#F3F3F3] w-full relative z-10 flex justify-center items-center h-[746px] min-h-[746px]">
+        <div className="w-full max-w-[1400px] h-full flex flex-col justify-center items-center md:px-24 relative">
+          <div className="text-center mb-12">
+            <h2 className="text-[42px] font-bold text-[#4B2615] mb-4 leading-[52px] text-center">
+              {t("team.title")}
+            </h2>
+            <p className="text-[18px] text-[#1E1E1E] max-w-2xl mx-auto opacity-70 leading-[28px] text-center font-medium">
+              {t("team.subtitle")}
+            </p>
+          </div>
+          <div className="text-center text-gray-500">
+            {t("team.noMembers")}
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
