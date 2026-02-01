@@ -48,7 +48,7 @@ const httpModule = useHttps ? https : http;
 console.log(`🔗 Using host: ${HOST}`);
 // API Token - get from Strapi admin: Settings > API Tokens
 // Or set environment variable: STRAPI_API_TOKEN=your_token_here
-const API_TOKEN = process.env.STRAPI_API_TOKEN || 'e5bd95d1b27c948649e3a315dbc0344c9ed8274b4025f5b193523eb908ac0aa2a64ad1e42c167a29686d308cefcf2d22bafbd3b9f3caa49b2ec54caba951e2b01e9af306ba708aa140cc12bae02ca6cc07cdac229b66da856582ce2f370e916c399cf4dd5a214e5bac1865d410c8bb1b7071df0605ad736a26b8525c515ed43c';
+const API_TOKEN = process.env.STRAPI_API_TOKEN || '289d740187fa0d03c8654745ee4a584d9af62f75bec42f0fb7a0ec95a66c1b0897892e396b5e45c6e29236323d1dfff71840efbea7a1a4b39268fbbc3449187edaf0034264e55e2b91e0199a212b4810f6abbf454f5d2c729a794dac8e7a9b4980036f10a62ae4de8e04a0d59762eb4ad41bb01c78d842f8d5a8901abbcf02ad';
 
 if (!API_TOKEN) {
   console.error('❌ Error: API token is required!');
@@ -990,7 +990,7 @@ async function seedData() {
   const updatedExistingMembers = await getExistingTeamMembers();
   console.log(`📋 After cleanup: ${updatedExistingMembers.length} team member(s) remaining`);
   
-  // Update existing team members with images (don't create new ones)
+  // Create or update team members with images
   let imageIndex = 0;
   for (const member of teamMembers) {
     const existingMember = await findTeamMemberByName(updatedExistingMembers, member.name);
@@ -1003,8 +1003,12 @@ async function seedData() {
         console.log(`🔄 Updated team member: ${member.name}${imageInfo}`);
       }
     } else {
-      // Skip creating new members on second run
-      console.log(`⏭️  Team member ${member.name} not found, skipping (images only mode)...`);
+      // Create new member if doesn't exist
+      const result = await createTeamMember(member, imageIndex, allImages, null);
+      if (result) {
+        const imageInfo = allImages[imageIndex] ? ` (image ${imageIndex + 1})` : '';
+        console.log(`✅ Created team member: ${member.name}${imageInfo}`);
+      }
     }
     
     imageIndex = (imageIndex + 1) % Math.max(allImages.length, 1); // Cycle through images
@@ -1026,7 +1030,7 @@ async function seedData() {
   // Get updated list after deletion
   const updatedExistingClients = await getExistingClients();
   
-  // Update existing clients with images (don't create new ones)
+  // Create or update clients with images
   let clientImageIndex = 0;
   for (const client of clients) {
     const existingClient = await findClientByName(updatedExistingClients, client.name);
@@ -1037,7 +1041,12 @@ async function seedData() {
         console.log(`🔄 Updated client: ${client.name}${imageInfo}`);
       }
     } else {
-      console.log(`⏭️  Client ${client.name} not found, skipping (images only mode)...`);
+      // Create new client if doesn't exist
+      const result = await createClient(client, clientImageIndex, allImages, null);
+      if (result) {
+        const imageInfo = allImages[clientImageIndex] ? ` (image ${clientImageIndex + 1})` : '';
+        console.log(`✅ Created client: ${client.name}${imageInfo}`);
+      }
     }
     clientImageIndex = (clientImageIndex + 1) % Math.max(allImages.length, 1);
     await new Promise(resolve => setTimeout(resolve, 200));
@@ -1058,33 +1067,27 @@ async function seedData() {
   // Get updated list after deletion
   const updatedExistingPages = await getExistingHeroPages();
   
-  // Update existing pages with images (don't create new ones)
+  // Create or update pages with images
   let pageImageIndex = 0;
   for (const page of heroPages) {
     // Check English version
     const existingEnPage = await findHeroPageByTitle(updatedExistingPages, page.title.en);
-    if (existingEnPage) {
-      const enResult = await createHeroPage(page, 'en', pageImageIndex, allImages, existingEnPage);
-      if (enResult) {
-        const imageInfo = allImages[pageImageIndex] ? ` (image ${pageImageIndex + 1})` : '';
-        console.log(`🔄 Updated hero page: ${page.title.en}${imageInfo}`);
-      }
-    } else {
-      console.log(`⏭️  Hero page "${page.title.en}" not found, skipping (images only mode)...`);
+    const enResult = await createHeroPage(page, 'en', pageImageIndex, allImages, existingEnPage);
+    if (enResult) {
+      const imageInfo = allImages[pageImageIndex] ? ` (image ${pageImageIndex + 1})` : '';
+      const action = enResult.updated ? 'Updated' : 'Created';
+      console.log(`✅ ${action} hero page: ${page.title.en}${imageInfo}`);
     }
     
     // Check Arabic version (use same image)
     const existingArPage = await findHeroPageByTitle(updatedExistingPages, page.title.ar);
-    if (existingArPage) {
-      const arResult = await createHeroPage(page, 'ar', pageImageIndex, allImages, existingArPage);
-      if (arResult) {
-        const imageInfo = allImages[pageImageIndex] ? ` (image ${pageImageIndex + 1})` : '';
-        console.log(`🔄 Updated hero page: ${page.title.ar}${imageInfo}`);
-      }
-    } else {
-      console.log(`⏭️  Hero page "${page.title.ar}" not found, skipping (images only mode)...`);
+    const arResult = await createHeroPage(page, 'ar', pageImageIndex, allImages, existingArPage);
+    if (arResult) {
+      const imageInfo = allImages[pageImageIndex] ? ` (image ${pageImageIndex + 1})` : '';
+      const action = arResult.updated ? 'Updated' : 'Created';
+      console.log(`✅ ${action} hero page: ${page.title.ar}${imageInfo}`);
     }
-    
+
     pageImageIndex = (pageImageIndex + 1) % Math.max(allImages.length, 1);
     await new Promise(resolve => setTimeout(resolve, 200));
   }

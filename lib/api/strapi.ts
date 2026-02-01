@@ -7,10 +7,22 @@ const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
   headers: {
     "Content-Type": "application/json",
-    ...(API_TOKEN && {
-      Authorization: `Bearer ${API_TOKEN}`,
-    }),
   },
+});
+
+// Add request interceptor to include token in every request
+api.interceptors.request.use((config) => {
+  if (API_TOKEN) {
+    config.headers.Authorization = `Bearer ${API_TOKEN}`;
+  }
+  
+  // Debug logging in development
+  if (process.env.NODE_ENV === "development") {
+    console.log("API Request:", config.method?.toUpperCase(), config.url);
+    console.log("API Token:", API_TOKEN ? `${API_TOKEN.substring(0, 20)}...` : "NOT SET");
+  }
+  
+  return config;
 });
 
 export interface StrapiResponse<T> {
@@ -54,15 +66,41 @@ const transformService = (item: any): Service => {
   let imageAlt = "";
   
   if (data.image) {
-    const imageData = data.image.data || data.image;
+    // Strapi v5 structure: can be data.image OR data.image.data OR data.image.data.attributes
+    let imageData = data.image;
+    
+    // Unwrap nested structures
+    if (imageData.data) {
+      imageData = imageData.data;
+    }
+    if (imageData.attributes) {
+      imageData = imageData.attributes;
+    }
+    
     if (imageData) {
-      const imageAttrs = imageData.attributes || imageData;
-      imageUrl = imageAttrs.url || imageAttrs.formats?.large?.url || imageAttrs.formats?.medium?.url || imageAttrs.formats?.small?.url || "";
-      imageAlt = imageAttrs.alternativeText || imageAttrs.caption || "";
+      // URL is directly in the object: { url: "/uploads/...", formats: {...} }
+      imageUrl = imageData.url || 
+                 imageData.formats?.large?.url || 
+                 imageData.formats?.medium?.url || 
+                 imageData.formats?.small?.url || 
+                 imageData.formats?.thumbnail?.url ||
+                 "";
       
-      // Add base URL if it's a relative path
+      imageAlt = imageData.alternativeText || 
+                 imageData.caption || 
+                 "";
+      
+      // Add base URL if it's a relative path (starts with /uploads/)
       if (imageUrl && !imageUrl.startsWith('http')) {
-        imageUrl = `${API_BASE_URL}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+        const cleanUrl = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+        imageUrl = `${API_BASE_URL}${cleanUrl}`;
+      }
+      
+      // Debug logging in development
+      if (process.env.NODE_ENV === "development") {
+        if (!imageUrl) {
+          console.warn("No image URL found for service:", data.title, "Image data:", data.image);
+        }
       }
     }
   }
@@ -108,22 +146,47 @@ const transformTeamMember = (item: any): TeamMember => {
   let imageUrl = "";
   let imageAlt = "";
   
-  if (data.image?.data || data.image) {
-    if (data.image?.data?.attributes?.url) {
-      imageUrl = data.image.data.attributes.url.startsWith('http') 
-        ? data.image.data.attributes.url 
-        : `${API_BASE_URL}${data.image.data.attributes.url}`;
-      imageAlt = data.image.data.attributes.alternativeText || "";
-    } else if (data.image?.url) {
-      imageUrl = data.image.url.startsWith('http') 
-        ? data.image.url 
-        : `${API_BASE_URL}${data.image.url}`;
-      imageAlt = data.image.alternativeText || "";
-    } else if (data.image?.attributes?.url) {
-      imageUrl = data.image.attributes.url.startsWith('http') 
-        ? data.image.attributes.url 
-        : `${API_BASE_URL}${data.image.attributes.url}`;
-      imageAlt = data.image.attributes.alternativeText || "";
+  // Handle Strapi v5 image structure
+  if (data.image) {
+    // Strapi v5 can return: data.image.data.attributes OR data.image.data OR data.image (direct)
+    let imageData = data.image;
+    
+    // Unwrap nested structures
+    if (imageData.data) {
+      imageData = imageData.data;
+    }
+    if (imageData.attributes) {
+      imageData = imageData.attributes;
+    }
+    
+    if (imageData) {
+      // Try different possible URL paths (Strapi v5 structure)
+      imageUrl = imageData.url || 
+                 imageData.formats?.large?.url || 
+                 imageData.formats?.medium?.url || 
+                 imageData.formats?.small?.url || 
+                 imageData.formats?.thumbnail?.url ||
+                 "";
+      
+      imageAlt = imageData.alternativeText || 
+                 imageData.caption || 
+                 "";
+      
+      // Add base URL if it's a relative path
+      if (imageUrl && !imageUrl.startsWith('http')) {
+        // Ensure URL starts with / if it doesn't
+        const cleanUrl = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+        imageUrl = `${API_BASE_URL}${cleanUrl}`;
+      }
+      
+      // Debug logging in development
+      if (process.env.NODE_ENV === "development") {
+        if (!imageUrl) {
+          console.warn("No image URL found for team member:", data.name, "Image data:", data.image);
+        } else {
+          console.log("Team member image URL:", imageUrl);
+        }
+      }
     }
   }
   
@@ -147,22 +210,47 @@ const transformClient = (item: any): Client => {
   let imageUrl = "";
   let imageAlt = "";
   
-  if (data.image?.data || data.image) {
-    if (data.image?.data?.attributes?.url) {
-      imageUrl = data.image.data.attributes.url.startsWith('http') 
-        ? data.image.data.attributes.url 
-        : `${API_BASE_URL}${data.image.data.attributes.url}`;
-      imageAlt = data.image.data.attributes.alternativeText || "";
-    } else if (data.image?.url) {
-      imageUrl = data.image.url.startsWith('http') 
-        ? data.image.url 
-        : `${API_BASE_URL}${data.image.url}`;
-      imageAlt = data.image.alternativeText || "";
-    } else if (data.image?.attributes?.url) {
-      imageUrl = data.image.attributes.url.startsWith('http') 
-        ? data.image.attributes.url 
-        : `${API_BASE_URL}${data.image.attributes.url}`;
-      imageAlt = data.image.attributes.alternativeText || "";
+  // Handle Strapi v5 image structure
+  if (data.image) {
+    // Strapi v5 can return: data.image.data.attributes OR data.image.data OR data.image (direct)
+    let imageData = data.image;
+    
+    // Unwrap nested structures
+    if (imageData.data) {
+      imageData = imageData.data;
+    }
+    if (imageData.attributes) {
+      imageData = imageData.attributes;
+    }
+    
+    if (imageData) {
+      // Try different possible URL paths (Strapi v5 structure)
+      imageUrl = imageData.url || 
+                 imageData.formats?.large?.url || 
+                 imageData.formats?.medium?.url || 
+                 imageData.formats?.small?.url || 
+                 imageData.formats?.thumbnail?.url ||
+                 "";
+      
+      imageAlt = imageData.alternativeText || 
+                 imageData.caption || 
+                 "";
+      
+      // Add base URL if it's a relative path
+      if (imageUrl && !imageUrl.startsWith('http')) {
+        // Ensure URL starts with / if it doesn't
+        const cleanUrl = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+        imageUrl = `${API_BASE_URL}${cleanUrl}`;
+      }
+      
+      // Debug logging in development
+      if (process.env.NODE_ENV === "development") {
+        if (!imageUrl) {
+          console.warn("No image URL found for team member:", data.name, "Image data:", data.image);
+        } else {
+          console.log("Team member image URL:", imageUrl);
+        }
+      }
     }
   }
   
@@ -181,8 +269,43 @@ const transformClient = (item: any): Client => {
 
 const transformHeroContent = (item: any): HeroContent => {
   const data = item.attributes || item;
-  const media = data.media?.data?.attributes || data.media?.data || data.media?.attributes || data.media;
-  const mediaUrl = media?.url ? (media.url.startsWith('http') ? media.url : `${API_BASE_URL}${media.url}`) : "";
+  
+  // Handle Strapi v5 media structure
+  // Structure can be: data.media OR data.media.data OR data.media.data.attributes
+  let mediaUrl = "";
+  let mediaAlt = "";
+  
+  if (data.media) {
+    let mediaData = data.media;
+    
+    // Unwrap nested structures
+    if (mediaData.data) {
+      mediaData = mediaData.data;
+    }
+    if (mediaData.attributes) {
+      mediaData = mediaData.attributes;
+    }
+    
+    if (mediaData) {
+      // URL is directly in the object: { url: "/uploads/...", formats: {...} }
+      mediaUrl = mediaData.url || 
+                 mediaData.formats?.large?.url || 
+                 mediaData.formats?.medium?.url || 
+                 mediaData.formats?.small?.url || 
+                 mediaData.formats?.thumbnail?.url ||
+                 "";
+      
+      mediaAlt = mediaData.alternativeText || 
+                 mediaData.caption || 
+                 "";
+      
+      // Add base URL if it's a relative path (starts with /uploads/)
+      if (mediaUrl && !mediaUrl.startsWith('http')) {
+        const cleanUrl = mediaUrl.startsWith('/') ? mediaUrl : `/${mediaUrl}`;
+        mediaUrl = `${API_BASE_URL}${cleanUrl}`;
+      }
+    }
+  }
   
   return {
     id: item.id || item.documentId || Math.random(),
@@ -194,7 +317,7 @@ const transformHeroContent = (item: any): HeroContent => {
     media: {
       type: data.mediaType || "image",
       url: mediaUrl,
-      alt: media?.alternativeText,
+      alt: mediaAlt,
     },
   };
 };
@@ -420,14 +543,15 @@ export const strapiApi = {
 
   async getHeroContent(locale: string = "en"): Promise<HeroContent[] | null> {
     try {
+      // Strapi v5 uses query string format for nested populate
       const params: any = {
-        populate: {
-          media: {
-            populate: "*",
-          },
-        },
-        "pagination[pageSize]": 100,
+        'populate[media][populate]': '*',
+        'pagination[pageSize]': 100,
       };
+      
+      if (locale) {
+        params.locale = locale;
+      }
       
       const response = await api.get<any>("/pages", { params });
       const strapiData = response.data?.data || response.data || [];

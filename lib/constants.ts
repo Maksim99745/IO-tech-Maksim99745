@@ -1,5 +1,5 @@
 export const API_BASE_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
-export const API_TOKEN = process.env.NEXT_PUBLIC_STRAPI_TOKEN || 'e5bd95d1b27c948649e3a315dbc0344c9ed8274b4025f5b193523eb908ac0aa2a64ad1e42c167a29686d308cefcf2d22bafbd3b9f3caa49b2ec54caba951e2b01e9af306ba708aa140cc12bae02ca6cc07cdac229b66da856582ce2f370e916c399cf4dd5a214e5bac1865d410c8bb1b7071df0605ad736a26b8525c515ed43c';
+export const API_TOKEN = process.env.NEXT_PUBLIC_STRAPI_TOKEN || '289d740187fa0d03c8654745ee4a584d9af62f75bec42f0fb7a0ec95a66c1b0897892e396b5e45c6e29236323d1dfff71840efbea7a1a4b39268fbbc3449187edaf0034264e55e2b91e0199a212b4810f6abbf454f5d2c729a794dac8e7a9b4980036f10a62ae4de8e04a0d59762eb4ad41bb01c78d842f8d5a8901abbcf02ad';
 
 export const LANGUAGES = {
   EN: 'en',
@@ -25,11 +25,11 @@ export const FALLBACK_IMAGES = {
     '/assets/Image (6).png',
   ],
   hero: [
-    '/assets/Home  bg image.png',
-    '/assets/Home  bg image.png',
-    '/assets/Home  bg image.png',
-    '/assets/Home  bg image.png',
-    '/assets/Home  bg image.png',
+    '/assets/Image (6).png',
+    '/assets/depositphotos_153537908-stock-photo-arab-man-drink-coffee-in.jpg',
+    '/assets/Image (6).png',
+    '/assets/depositphotos_153537908-stock-photo-arab-man-drink-coffee-in.jpg',
+    '/assets/Image (6).png',
   ],
   service: '/assets/Home  bg image.png',
 };

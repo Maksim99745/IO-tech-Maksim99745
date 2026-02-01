@@ -70,13 +70,26 @@ export default function Clients() {
         <div className="absolute bg-[#643F2E] overflow-hidden w-[374px] h-[374px] left-[122px] top-[312px]">
           {(() => {
             const fallbackImages = ['/assets/Image (6).png', '/assets/depositphotos_153537908-stock-photo-arab-man-drink-coffee-in.jpg'];
-            const imageUrl = currentClient.image?.url || fallbackImages[currentIndex % fallbackImages.length];
+            const fallbackUrl = fallbackImages[currentIndex % fallbackImages.length];
+            
+            // Check if image URL is valid, otherwise use fallback immediately
+            let imageUrl = currentClient.image?.url;
+            if (!imageUrl || !imageUrl.startsWith('http') || imageUrl.includes('undefined') || imageUrl.includes('null')) {
+              imageUrl = fallbackUrl;
+            }
             
             return (
               <img
                 src={imageUrl}
                 alt={currentClient.image?.alt || currentClient.name || "Client"}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  // If image fails to load, use fallback
+                  const target = e.currentTarget;
+                  if (!target.src.includes('/assets/')) {
+                    target.src = fallbackUrl;
+                  }
+                }}
               />
             );
           })()}

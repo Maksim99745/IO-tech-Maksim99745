@@ -30,11 +30,26 @@ export default function ServiceDetailClient({ service, locale }: ServiceDetailCl
       <div className="relative h-[850px] w-full overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src={service.image?.url || "/assets/Home  bg image.png"}
+            src={(() => {
+              const fallbackUrl = "/assets/Home  bg image.png";
+              const imageUrl = service.image?.url;
+              // Check if image URL is valid, otherwise use fallback immediately
+              if (!imageUrl || !imageUrl.startsWith('http') || imageUrl.includes('undefined') || imageUrl.includes('null')) {
+                return fallbackUrl;
+              }
+              return imageUrl;
+            })()}
             alt={service.image?.alt || service.title}
             fill
             className="object-cover"
             priority
+            onError={(e) => {
+              // If image fails to load, use fallback
+              const target = e.currentTarget as HTMLImageElement;
+              if (!target.src.includes('/assets/Home  bg image.png')) {
+                target.src = '/assets/Home  bg image.png';
+              }
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[rgba(75,38,21,0.28)] to-[rgba(75,38,21,0.68)]" />
         </div>

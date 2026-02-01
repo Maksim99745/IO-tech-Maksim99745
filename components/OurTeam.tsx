@@ -114,7 +114,13 @@ export default function OurTeam() {
             ) : (
               currentMembers.map((member, index) => {
                 const fallbackImages = ['/assets/Image (6).png', '/assets/depositphotos_153537908-stock-photo-arab-man-drink-coffee-in.jpg'];
-                const imageUrl = member.image?.url || fallbackImages[index % fallbackImages.length];
+                const fallbackUrl = fallbackImages[index % fallbackImages.length];
+                
+                // Check if image URL is valid, otherwise use fallback immediately
+                let imageUrl = member.image?.url;
+                if (!imageUrl || !imageUrl.startsWith('http') || imageUrl.includes('undefined') || imageUrl.includes('null')) {
+                  imageUrl = fallbackUrl;
+                }
                 
                 return (
                   <div key={member.id} className="flex flex-col items-center gap-6">
@@ -123,6 +129,13 @@ export default function OurTeam() {
                         src={imageUrl}
                         alt={member.image?.alt || member.name}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // If image fails to load, use fallback
+                          const target = e.currentTarget;
+                          if (!target.src.includes('/assets/')) {
+                            target.src = fallbackUrl;
+                          }
+                        }}
                       />
                     </div>
 

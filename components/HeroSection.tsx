@@ -188,13 +188,42 @@ export default function HeroSection() {
                     loop
                     muted
                     playsInline
+                    onError={(e) => {
+                      // If video fails, show fallback image
+                      const video = e.currentTarget;
+                      video.style.display = 'none';
+                      const img = document.createElement('img');
+                      const fallbackImages = ['/assets/Image (6).png', '/assets/depositphotos_153537908-stock-photo-arab-man-drink-coffee-in.jpg'];
+                      img.src = fallbackImages[currentIndex % fallbackImages.length];
+                      img.alt = currentContent.media.alt || currentContent.title;
+                      img.className = 'w-full h-full object-cover';
+                      video.parentElement?.appendChild(img);
+                    }}
                   />
                 ) : (
                   <img
-                    src={currentContent.media.url || '/assets/Home  bg image.png'}
+                    src={(() => {
+                      const fallbackImages = ['/assets/Image (6).png', '/assets/depositphotos_153537908-stock-photo-arab-man-drink-coffee-in.jpg'];
+                      const fallbackUrl = fallbackImages[currentIndex % fallbackImages.length];
+                      const mediaUrl = currentContent.media.url;
+                      // Check if media URL is valid, otherwise use fallback immediately
+                      if (!mediaUrl || !mediaUrl.startsWith('http') || mediaUrl.includes('undefined') || mediaUrl.includes('null')) {
+                        return fallbackUrl;
+                      }
+                      return mediaUrl;
+                    })()}
                     alt={currentContent.media.alt || currentContent.title}
                     className="w-full h-full object-cover"
                     style={{ minWidth: '374px', minHeight: '374px' }}
+                    onError={(e) => {
+                      // If image fails to load, use fallback
+                      const target = e.currentTarget;
+                      const fallbackImages = ['/assets/Image (6).png', '/assets/depositphotos_153537908-stock-photo-arab-man-drink-coffee-in.jpg'];
+                      const fallbackUrl = fallbackImages[currentIndex % fallbackImages.length];
+                      if (!target.src.includes('/assets/Image (6).png') && !target.src.includes('/assets/depositphotos_153537908-stock-photo-arab-man-drink-coffee-in.jpg')) {
+                        target.src = fallbackUrl;
+                      }
+                    }}
                   />
                 )}
               </div>
