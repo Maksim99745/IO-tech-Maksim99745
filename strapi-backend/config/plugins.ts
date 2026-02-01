@@ -1,4 +1,4 @@
-export default ({ env }) => {
+export default ({ env }: { env: any }) => {
   // Generate JWT secret if not provided (for easy deployment)
   const crypto = require('crypto');
   const generateJWTSecret = () => {

@@ -1,4 +1,4 @@
-export default ({ env }) => {
+export default ({ env }: { env: any }) => {
   // Generate secrets if not provided (for easy deployment)
   const generateSecret = () => {
     const crypto = require('crypto');

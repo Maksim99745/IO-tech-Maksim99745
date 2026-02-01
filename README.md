@@ -108,9 +108,12 @@ All API tokens and configuration are pre-configured in the code:
 
 ## 🚀 Deployment
 
-For deployment instructions, see [DEPLOY.md](./DEPLOY.md)
+**Live URLs:**
+- **Frontend (Next.js):** https://io-tech-maksim99745-1.onrender.com
+- **Strapi Admin:** https://io-tech-maksim99745.onrender.com/admin
+- **Strapi API:** https://io-tech-maksim99745.onrender.com/api
 
-Quick deployment:
-- **Next.js** → Vercel
-- **Strapi** → Railway / Render
-- **Auto-deploy** → GitHub Actions
+**Deployment platforms:**
+- **Next.js** → Render
+- **Strapi** → Render
+- **Auto-deploy** → GitHub Actions (on push to main)
