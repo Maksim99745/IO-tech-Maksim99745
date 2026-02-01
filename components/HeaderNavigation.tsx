@@ -74,6 +74,7 @@ export default function HeaderNavigation() {
             <Link
               href="/about"
               className="hover:text-brown-light transition-colors"
+              prefetch={false}
             >
               {t("nav.aboutUs")}
             </Link>
@@ -164,6 +165,7 @@ export default function HeaderNavigation() {
             <Link
               href="/blog"
               className="hover:text-brown-light transition-colors"
+              prefetch={false}
             >
               {t("nav.blog")}
             </Link>
@@ -178,6 +180,7 @@ export default function HeaderNavigation() {
             <Link
               href="/contact"
               className="hover:text-brown-light transition-colors"
+              prefetch={false}
             >
               {t("nav.contactUs")}
             </Link>
@@ -231,6 +234,7 @@ export default function HeaderNavigation() {
             <Link
               href="/appointment"
               className="hidden md:block bg-transparent text-white px-6 py-2 rounded-lg border border-white hover:bg-white/10 transition-colors font-medium"
+              prefetch={false}
             >
               {t("nav.bookAppointment")}
             </Link>
@@ -279,6 +283,7 @@ export default function HeaderNavigation() {
               href="/about"
               className="block py-2 hover:text-brown-light transition-colors"
               onClick={() => setIsMobileMenuOpen(false)}
+              prefetch={false}
             >
               {t("nav.aboutUs")}
             </Link>
@@ -323,6 +328,7 @@ export default function HeaderNavigation() {
               href="/blog"
               className="block py-2 hover:text-brown-light transition-colors"
               onClick={() => setIsMobileMenuOpen(false)}
+              prefetch={false}
             >
               {t("nav.blog")}
             </Link>
@@ -337,6 +343,7 @@ export default function HeaderNavigation() {
               href="/contact"
               className="block py-2 hover:text-brown-light transition-colors"
               onClick={() => setIsMobileMenuOpen(false)}
+              prefetch={false}
             >
               {t("nav.contactUs")}
             </Link>

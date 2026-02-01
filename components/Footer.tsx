@@ -164,6 +164,7 @@ export default function Footer() {
               <Link 
                 href="/about" 
                 className="hover:text-brown-light transition-colors"
+                prefetch={false}
                 style={{
                   fontSize: '16px',
                   fontWeight: '400',
