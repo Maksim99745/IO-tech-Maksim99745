@@ -31,9 +31,9 @@ export default function HeroSection() {
           setHeroContents([]);
         }
       } catch (error: any) {
-        if (process.env.NODE_ENV === "development") {
-          console.error("Failed to fetch hero content:", error);
-        }
+        console.error("Failed to fetch hero content:", error);
+        console.error("Error details:", error.response?.data || error.message);
+        console.error("API URL:", process.env.NEXT_PUBLIC_STRAPI_URL || "NOT SET");
         setError(error.message || "Failed to load hero content");
         setHeroContents([]);
       } finally {
