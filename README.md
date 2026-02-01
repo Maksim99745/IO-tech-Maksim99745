@@ -2,43 +2,14 @@
 
 Next.js application with Strapi CMS for a law firm.
 
-## 🚀 Quick Start (Automated Setup)
+## 🚀 Live Deployment
 
-**One command to rule them all!** Just run:
+**Production URLs:**
+- **Frontend (Next.js):** https://io-tech-maksim99745-1.onrender.com
+- **Strapi Admin:** https://io-tech-maksim99745.onrender.com/admin
+- **Strapi API:** https://io-tech-maksim99745.onrender.com/api
 
-```bash
-# Linux/Mac
-chmod +x setup.sh
-./setup.sh
-
-# OR using Node.js (works on all platforms)
-node setup.js
-```
-
-This will automatically:
-1. ✅ Install all dependencies (Frontend + Strapi)
-2. ✅ Start Strapi server
-3. ✅ Wait for Strapi to be ready
-4. ✅ Seed database with initial data
-5. ✅ Start Next.js application
-6. ✅ Open browser automatically
-
-**That's it!** No configuration needed. Everything is pre-configured.
-
-### Access Points
-
-- **Frontend:** http://localhost:3000
-- **Strapi Admin:** http://localhost:1337/admin
-
-### Stopping Servers
-
-Press `Ctrl+C` in the terminal to stop all servers.
-
----
-
-## 📋 Manual Setup (if needed)
-
-If you prefer manual setup:
+## 📋 Local Development Setup
 
 ### 1. Install Frontend Dependencies
 
@@ -74,11 +45,15 @@ Application will be available at [http://localhost:3000](http://localhost:3000)
 
 ## 🔑 Configuration
 
-**No environment variables needed!** 
+**No environment variables needed for local development!** 
 
 All API tokens and configuration are pre-configured in the code:
 - Strapi API token: `lib/constants.ts`
 - Seed script token: `strapi-backend/scripts/seed-data.js`
+
+For production deployment, set environment variables:
+- `NEXT_PUBLIC_STRAPI_URL` - Strapi base URL
+- `NEXT_PUBLIC_STRAPI_TOKEN` - Strapi API token
 
 ## 📦 Requirements
 
