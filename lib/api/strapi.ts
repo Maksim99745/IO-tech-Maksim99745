@@ -438,13 +438,11 @@ export const strapiApi = {
       return filtered;
     } catch (error: unknown) {
       const axiosError = error as { response?: { status?: number; data?: unknown }; message?: string };
-      // Always log errors for debugging
       console.error("Error fetching hero content:", error);
       console.error("Error status:", axiosError.response?.status);
       console.error("Error response:", axiosError.response?.data || axiosError.message);
       console.error("API URL:", `${API_BASE_URL}/api/pages`);
       console.error("API Token:", API_TOKEN ? `${API_TOKEN.substring(0, 20)}...` : "NOT SET");
-      console.error("NEXT_PUBLIC_STRAPI_URL:", process.env.NEXT_PUBLIC_STRAPI_URL || "NOT SET");
       return null;
     }
   },
