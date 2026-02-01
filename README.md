@@ -71,7 +71,8 @@ For production deployment, set environment variables:
 
 ## 📝 Notes
 
-- The project uses SQLite database (no external database setup needed)
+- **Local development:** Uses SQLite database (no external database setup needed)
+- **Production:** Uses PostgreSQL database on Render
 - All data is automatically seeded on first run
 - API tokens are embedded in the code for easy setup
 - No login required - everything works out of the box
